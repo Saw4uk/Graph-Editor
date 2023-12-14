@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Codice.Client.Common.WebApi;
-using LineWars.Extensions;
-using LineWars.Model;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
@@ -38,8 +34,6 @@ public class GraphTool : EditorTool
         EditorApplication.RepaintHierarchyWindow();
 
         nodeListener = new SelectionListener<Node>();
-
-        //Debug.Log("CreateGraph is Activated!");
     }
 
 
@@ -47,8 +41,6 @@ public class GraphTool : EditorTool
     {
         base.OnWillBeDeactivated();
         OnDisable();
-
-        //Debug.Log("CreateGraph is Deactivated!");
     }
 
     private void OnDisable()
@@ -121,7 +113,7 @@ public class GraphTool : EditorTool
 
         allDeletedEdges = allDeletedEdges.Distinct().ToList();
         allNeighboringNodes = allNeighboringNodes.Distinct().ToList();
-        
+
         Undo.IncrementCurrentGroup();
         foreach (var node in allNeighboringNodes)
         {
@@ -148,15 +140,14 @@ public class GraphTool : EditorTool
         }
 
         foreach (var node in allDeletedNodes)
-        { 
+        {
             Undo.DestroyObjectImmediate(node.gameObject);
         }
-        
+
         foreach (var deletedEdge in allDeletedEdges)
         {
             Undo.DestroyObjectImmediate(deletedEdge.gameObject);
         }
-
     }
 
     private void PutNodeInMousePosition()
@@ -337,7 +328,7 @@ public static class EdgeEditorExtension
         edge.name = $"Edge{edge.Id}";
         RedrawLine();
         AlineCollider();
-        
+
         void RedrawLine()
         {
             var v1 = edge.FirstNode ? edge.FirstNode.Position : Vector2.zero;
@@ -346,14 +337,13 @@ public static class EdgeEditorExtension
             var center = v1;
             var newSecondNodePosition = v2 - center;
             var radian = Mathf.Atan2(newSecondNodePosition.y, newSecondNodePosition.x) * 180 / Mathf.PI;
-            
+
             Undo.RecordObject(edge.SpriteRenderer.transform, "Redraw Edge");
             edge.SpriteRenderer.transform.rotation = Quaternion.Euler(0, 0, radian);
             edge.SpriteRenderer.transform.position = (v1 + v2) / 2;
 
             Undo.RecordObject(edge.SpriteRenderer, "Redraw Edge");
-            edge.SpriteRenderer.size = new Vector2(distance, edge.GetCurrentWidth());
-            edge.SpriteRenderer.sprite = edge.GetCurrentSprite();
+            edge.SpriteRenderer.size = new Vector2(distance, edge.SpriteRenderer.size.y);
         }
 
         void AlineCollider()
