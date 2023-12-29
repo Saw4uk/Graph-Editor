@@ -9,19 +9,19 @@ using Object = UnityEngine.Object;
 [EditorTool("CreateGraph")]
 public class GraphTool : EditorTool
 {
-    private Edge edgePrefab;
-    private Node nodePrefab;
+    private MonoEdge monoEdgePrefab;
+    private MonoNode monoNodePrefab;
     private MonoGraph graph;
 
 
-    private SelectionListener<Node> nodeListener;
+    private SelectionListener<MonoNode> nodeListener;
 
     public override void OnActivated()
     {
         base.OnActivated();
 
-        edgePrefab = Resources.Load<Edge>("Prefabs/Edge");
-        nodePrefab = Resources.Load<Node>("Prefabs/Node");
+        monoEdgePrefab = Resources.Load<MonoEdge>("Prefabs/Edge");
+        monoNodePrefab = Resources.Load<MonoNode>("Prefabs/Node");
 
         AssignGraph();
 
@@ -33,7 +33,7 @@ public class GraphTool : EditorTool
 
         EditorApplication.RepaintHierarchyWindow();
 
-        nodeListener = new SelectionListener<Node>();
+        nodeListener = new SelectionListener<MonoNode>();
     }
 
 
@@ -54,7 +54,6 @@ public class GraphTool : EditorTool
     public override void OnToolGUI(EditorWindow window)
     {
         UsePositionHandle();
-        DrawOutlineForActiveNodes();
         if (Event.current.Equals(Event.KeyboardEvent("k")))
         {
             PutNodeInMousePosition();
@@ -83,26 +82,12 @@ public class GraphTool : EditorTool
             graph.EdgesParent.transform.SetParent(graph.transform);
         }
     }
-
-    private void DrawOutlineForActiveNodes()
-    {
-        foreach (var activatedNode in nodeListener.GetActivated())
-        {
-            activatedNode.SetActiveOutline(true);
-        }
-
-        foreach (var disableNode in nodeListener.GetDisabled())
-        {
-            disableNode.SetActiveOutline(false);
-        }
-    }
-
     private void DeleteSelectedNodes()
     {
         Debug.Log("DELETE");
-        var allDeletedEdges = new List<Edge>();
-        var allDeletedNodes = new List<Node>();
-        var allNeighboringNodes = new List<Node>();
+        var allDeletedEdges = new List<MonoEdge>();
+        var allDeletedNodes = new List<MonoNode>();
+        var allNeighboringNodes = new List<MonoNode>();
 
         foreach (var node in nodeListener.GetActive().ToArray())
         {
@@ -171,72 +156,72 @@ public class GraphTool : EditorTool
         }
     }
 
-    private void ConnectManyNode(Node[] nodes)
+    private void ConnectManyNode(MonoNode[] nodes)
     {
         var allPairs = nodes.Zip(nodes, (node1, node2) => (node1, node2))
             .Where(x => x.node1.GetLine(x.node2));
     }
 
 
-    private void ConnectOrDisconnectNodes(Node firstNode, Node secondNode)
+    private void ConnectOrDisconnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode)
     {
-        var intersect = GetIntersectEdges(firstNode, secondNode);
+        var intersect = GetIntersectEdges(firstMonoNode, secondMonoNode);
         if (intersect.Count == 0)
-            ConnectNodes(firstNode, secondNode);
+            ConnectNodes(firstMonoNode, secondMonoNode);
         else
-            DisconnectNodes(firstNode, secondNode, intersect);
+            DisconnectNodes(firstMonoNode, secondMonoNode, intersect);
     }
 
-    private Edge ConnectNodes(Node firstNode, Node secondNode)
+    private MonoEdge ConnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode)
     {
         Undo.IncrementCurrentGroup();
 
         var edge = CreateEdge();
-        edge.Initialize(GetNextIndex(edge), firstNode, secondNode);
+        edge.Initialize(GetNextIndex(edge), firstMonoNode, secondMonoNode);
 
 
-        Undo.RecordObject(firstNode, "ConnectNodes");
-        firstNode.AddEdge(edge);
-        Undo.RecordObject(secondNode, "ConnectNodes");
-        secondNode.AddEdge(edge);
+        Undo.RecordObject(firstMonoNode, "ConnectNodes");
+        firstMonoNode.AddEdge(edge);
+        Undo.RecordObject(secondMonoNode, "ConnectNodes");
+        secondMonoNode.AddEdge(edge);
 
-        EditorUtility.SetDirty(firstNode);
-        EditorUtility.SetDirty(secondNode);
+        EditorUtility.SetDirty(firstMonoNode);
+        EditorUtility.SetDirty(secondMonoNode);
         EditorUtility.SetDirty(edge);
         edge.Redraw();
         return edge;
     }
 
-    private Edge CreateEdge()
+    private MonoEdge CreateEdge()
     {
-        var edge = (Edge) PrefabUtility.InstantiatePrefab(edgePrefab, graph.EdgesParent.transform);
+        var edge = (MonoEdge) PrefabUtility.InstantiatePrefab(monoEdgePrefab, graph.EdgesParent.transform);
         Undo.RegisterCreatedObjectUndo(edge.gameObject, "CreateEdge");
         SceneVisibilityManager.instance.DisablePicking(edge.gameObject, false);
         return edge;
     }
 
-    private void DisconnectNodes(Node firstNode, Node secondNode, List<Edge> intersect)
+    private void DisconnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode, List<MonoEdge> intersect)
     {
         Undo.IncrementCurrentGroup();
-        Undo.RecordObject(firstNode, "DisconnectNodes");
-        Undo.RecordObject(secondNode, "DisconnectNodes");
+        Undo.RecordObject(firstMonoNode, "DisconnectNodes");
+        Undo.RecordObject(secondMonoNode, "DisconnectNodes");
 
         foreach (var edge in intersect)
         {
-            firstNode.RemoveEdge(edge);
-            secondNode.RemoveEdge(edge);
+            firstMonoNode.RemoveEdge(edge);
+            secondMonoNode.RemoveEdge(edge);
             Undo.DestroyObjectImmediate(edge.gameObject);
         }
 
-        EditorUtility.SetDirty(firstNode);
-        EditorUtility.SetDirty(secondNode);
+        EditorUtility.SetDirty(firstMonoNode);
+        EditorUtility.SetDirty(secondMonoNode);
     }
 
-    private Node CreateNode()
+    private MonoNode CreateNode()
     {
         Undo.IncrementCurrentGroup();
 
-        var node = (Node) PrefabUtility.InstantiatePrefab(nodePrefab, graph.NodesParent.transform);
+        var node = (MonoNode) PrefabUtility.InstantiatePrefab(monoNodePrefab, graph.NodesParent.transform);
         node.transform.position = GetMousePosition2D();
         node.Initialize(GetNextIndex(node));
         Selection.activeObject = node.gameObject;
@@ -251,7 +236,7 @@ public class GraphTool : EditorTool
     {
         if (target is GameObject activeObj)
         {
-            if (activeObj.GetComponent<Node>() == null) return;
+            if (activeObj.GetComponent<MonoNode>() == null) return;
 
             EditorGUI.BeginChangeCheck();
             var oldPos = activeObj.transform.position;
@@ -261,7 +246,7 @@ public class GraphTool : EditorTool
             {
                 foreach (var node in targets
                              .OfType<GameObject>()
-                             .GetComponentMany<Node>()
+                             .GetComponentMany<MonoNode>()
                         )
                 {
                     Undo.RecordObject(node.transform, "Move Node");
@@ -272,9 +257,9 @@ public class GraphTool : EditorTool
         }
     }
 
-    private void ReDrawEdges(Node node)
+    private void ReDrawEdges(MonoNode monoNode)
     {
-        foreach (var edge in node.Edges)
+        foreach (var edge in monoNode.Edges)
         {
             Undo.RecordObject(edge.gameObject, "Move Node");
             Undo.RecordObject(edge.transform, "Move Node");
@@ -285,10 +270,10 @@ public class GraphTool : EditorTool
     }
 
 
-    private List<Edge> GetIntersectEdges(Node firstNode, Node secondNode)
+    private List<MonoEdge> GetIntersectEdges(MonoNode firstMonoNode, MonoNode secondMonoNode)
     {
-        return firstNode.Edges
-            .Intersect(secondNode.Edges)
+        return firstMonoNode.Edges
+            .Intersect(secondMonoNode.Edges)
             .ToList();
     }
 
@@ -322,34 +307,34 @@ public class GraphTool : EditorTool
 
 public static class EdgeEditorExtension
 {
-    public static void Redraw(this Edge edge)
+    public static void RedrawForEditor(this MonoEdge monoEdge)
     {
-        Undo.RecordObject(edge.gameObject, "Redraw Edge");
-        edge.name = $"Edge{edge.Id}";
+        Undo.RecordObject(monoEdge.gameObject, "Redraw Edge");
+        monoEdge.name = $"Edge{monoEdge.Id}";
         RedrawLine();
         AlineCollider();
 
         void RedrawLine()
         {
-            var v1 = edge.FirstNode ? edge.FirstNode.Position : Vector2.zero;
-            var v2 = edge.SecondNode ? edge.SecondNode.Position : Vector2.right;
+            var v1 = monoEdge.FirstNode ? monoEdge.FirstNode.Position : Vector2.zero;
+            var v2 = monoEdge.SecondNode ? monoEdge.SecondNode.Position : Vector2.right;
             var distance = Vector2.Distance(v1, v2);
             var center = v1;
             var newSecondNodePosition = v2 - center;
             var radian = Mathf.Atan2(newSecondNodePosition.y, newSecondNodePosition.x) * 180 / Mathf.PI;
 
-            Undo.RecordObject(edge.SpriteRenderer.transform, "Redraw Edge");
-            edge.SpriteRenderer.transform.rotation = Quaternion.Euler(0, 0, radian);
-            edge.SpriteRenderer.transform.position = (v1 + v2) / 2;
+            Undo.RecordObject(monoEdge.SpriteRenderer.transform, "Redraw Edge");
+            monoEdge.SpriteRenderer.transform.rotation = Quaternion.Euler(0, 0, radian);
+            monoEdge.SpriteRenderer.transform.position = (v1 + v2) / 2;
 
-            Undo.RecordObject(edge.SpriteRenderer, "Redraw Edge");
-            edge.SpriteRenderer.size = new Vector2(distance, edge.SpriteRenderer.size.y);
+            Undo.RecordObject(monoEdge.SpriteRenderer, "Redraw Edge");
+            monoEdge.SpriteRenderer.size = new Vector2(distance, monoEdge.SpriteRenderer.size.y);
         }
 
         void AlineCollider()
         {
-            Undo.RecordObject(edge.BoxCollider2D, "Redraw Edge");
-            edge.BoxCollider2D.size = edge.SpriteRenderer.size;
+            Undo.RecordObject(monoEdge.BoxCollider2D, "Redraw Edge");
+            monoEdge.BoxCollider2D.size = monoEdge.SpriteRenderer.size;
         }
     }
 }

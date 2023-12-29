@@ -3,37 +3,37 @@ using System.Linq;
 using UnityEngine;
 
 
-public class Node : MonoBehaviour, INumbered
+public class MonoNode : MonoBehaviour, INumbered
 {
     [SerializeField] private int id;
 
     [SerializeField] private Sprite defaultSprite;
-    [SerializeField] private List<Edge> edges;
+    [SerializeField] private List<MonoEdge> edges;
 
     [field: Header("References")] 
     [SerializeField] private SpriteRenderer spriteRenderer;
 
     public int Id => id;
     public Vector2 Position => transform.position;
-    public IEnumerable<Edge> Edges => edges;
+    public IEnumerable<MonoEdge> Edges => edges;
 
 
     public void Initialize(int index)
     {
         id = index;
-        edges = new List<Edge>();
+        edges = new List<MonoEdge>();
     }
 
-    public void AddEdge(Edge edge)
+    public void AddEdge(MonoEdge monoEdge)
     {
-        if (edge == null || edges.Contains(edge))
+        if (monoEdge == null || edges.Contains(monoEdge))
             return;
-        edges.Add(edge);
+        edges.Add(monoEdge);
     }
 
-    public bool RemoveEdge(Edge edge) => edges.Remove(edge);
-    public Edge GetLine(Node node) => Edges.Intersect(node.Edges).FirstOrDefault();
-    public IEnumerable<Node> GetNeighbors()
+    public bool RemoveEdge(MonoEdge monoEdge) => edges.Remove(monoEdge);
+    public MonoEdge GetLine(MonoNode monoNode) => Edges.Intersect(monoNode.Edges).FirstOrDefault();
+    public IEnumerable<MonoNode> GetNeighbors()
     {
         foreach (var edge in Edges)
         {
@@ -42,13 +42,5 @@ public class Node : MonoBehaviour, INumbered
             else
                 yield return edge.FirstNode;
         }
-    }
-
-    public void Redraw()
-    {
-    }
-    
-    public void SetActiveOutline(bool value)
-    {
     }
 }
