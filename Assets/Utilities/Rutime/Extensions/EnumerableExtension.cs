@@ -52,7 +52,6 @@ public static class EnumerableExtension
         return components.Select(x => x.gameObject);
     }
     
-    
     public static IEnumerable<int> GetRandomIntEnumerable(Random random, int minValue, int maxValue)
     {
         while (true)

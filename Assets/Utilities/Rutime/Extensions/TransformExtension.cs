@@ -9,7 +9,7 @@ public static class TransformExtension
     {
         try
         {
-            return transform.GetChildren()
+            return transform.EnumerateChildren()
                 .Select((el, i) => (el, i))
                 .Last(tuple => tuple.el.gameObject.activeSelf).i;
         }
@@ -20,14 +20,14 @@ public static class TransformExtension
 
     }
 
-    public static IEnumerable<Transform> GetChildren(this Transform transform)
+    public static IEnumerable<Transform> EnumerateChildren(this Transform transform)
     {
         var childesCount = transform.childCount;
         for (int i = 0; i < childesCount; i++)
             yield return transform.GetChild(i);
     }
 
-    public static IEnumerable<Transform> IterateByAllChildren(this Transform parent)
+    public static IEnumerable<Transform> EnumerateAllChildren(this Transform parent)
     {
         var q = new Queue<Transform>();
         q.Enqueue(parent);

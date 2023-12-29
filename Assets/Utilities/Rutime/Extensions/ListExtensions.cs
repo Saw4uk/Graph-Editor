@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Unity.VisualScripting;
 
 
 public static class ListExtensions
@@ -15,8 +13,7 @@ public static class ListExtensions
 
         return -1;
     }
-
-
+    
     public static IEnumerable<T> GetRandomElements<T>(this IReadOnlyList<T> list, Random random, int elementsCount)
     {
         if (elementsCount < 0)
