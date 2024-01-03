@@ -9,17 +9,17 @@ namespace GraphEditor
     {
         private readonly Dictionary<int, VertexNode> nodes = new();
 
-        public IReadOnlyDictionary<int, IReadOnlyNode> AsReadOnlyNodesDictionary
+        public IReadOnlyDictionary<int, IReadOnlyVertexNode> AsReadOnlyNodesDictionary
         {
             get
             {
-                return nodes.ToDictionary(x => x.Key, x => (IReadOnlyNode) x.Value);
+                return nodes.ToDictionary(x => x.Key, x => (IReadOnlyVertexNode) x.Value);
             }
         }
 
-        public IEnumerable<IReadOnlyNode> Nodes => nodes.Values;
+        public IEnumerable<IReadOnlyVertexNode> Nodes => nodes.Values;
 
-        public IEnumerable<(IReadOnlyNode, IReadOnlyNode)> Edges
+        public IEnumerable<(IReadOnlyVertexNode, IReadOnlyVertexNode)> Edges
         {
             get
             {
@@ -72,7 +72,6 @@ namespace GraphEditor
         {
             return CheckGraphForConnectivity(this);
         }
-
         public override string ToString()
         {
             return string.Join("\n", nodes.Values.Select(x => x.ToString()));

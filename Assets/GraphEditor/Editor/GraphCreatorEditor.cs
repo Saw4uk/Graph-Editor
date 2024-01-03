@@ -1,65 +1,72 @@
-﻿using System;
-using System.Collections;
-using GraphEditor;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
-[CustomEditor(typeof(GraphCreator))]
-public class GraphCreatorEditor : Editor
+namespace GraphEditor
 {
-    private GraphCreator GraphCreator => (GraphCreator) target;
-    private bool iterateStarted;
-
-    private void OnEnable()
+    [CustomEditor(typeof(GraphCreator))]
+    public class GraphCreatorEditor : Editor
     {
-        EditorApplication.update += Update;
-    }
-
-    private void OnDisable()
-    {
-        EditorApplication.update -= Update;
-    }
-
-    private void Update()
-    {
-        if (iterateStarted)
+        private GraphCreator GraphCreator => (GraphCreator) target;
+        private bool iterateStarted;
+    
+        private void OnEnable()
         {
-            GraphCreator.Iterate();
-            GraphCreator.RedrawAllEdges();
+            GraphCreator.Initialize(new EditorObjectCreator());
+            EditorApplication.update += Update;
         }
-    }
-
-
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-
-        if (GUILayout.Button("Restart"))
+    
+        private void OnDisable()
         {
-            foreach (var g in FindObjectsOfType<MonoGraph>())
+            EditorApplication.update -= Update;
+        }
+    
+        private void Update()
+        {
+            if (iterateStarted)
             {
-                DestroyImmediate(g.gameObject);
+                GraphCreator.Iterate();
+                GraphCreator.RedrawAllEdges();
             }
-
-            GraphCreator.Restart();
-            GraphCreator.RedrawAllEdges();
-            iterateStarted = false;
         }
-
-        if (GUILayout.Button("Start Iterate"))
+    
+    
+        public override void OnInspectorGUI()
         {
-            iterateStarted = true;
-        }
-
-        if (GUILayout.Button("Stop Iterate"))
-        {
-            iterateStarted = false;
-        }
-        
-        if (GUILayout.Button("Single Iterate"))
-        {
-            GraphCreator.Iterate();
-            GraphCreator.RedrawAllEdges();
+            base.OnInspectorGUI();
+    
+            if (GUILayout.Button("Restart"))
+            {
+                foreach (var g in FindObjectsOfType<MonoGraph>())
+                {
+                    DestroyImmediate(g.gameObject);
+                }
+    
+                GraphCreator.Restart();
+                GraphCreator.RedrawAllEdges();
+                GraphCreator.DrawBorder();
+                iterateStarted = false;
+            }
+    
+            if (GUILayout.Button("Start Iterate"))
+            {
+                iterateStarted = true;
+            }
+    
+            if (GUILayout.Button("Stop Iterate"))
+            {
+                iterateStarted = false;
+            }
+            
+            if (GUILayout.Button("Single Iterate"))
+            {
+                GraphCreator.Iterate();
+                GraphCreator.RedrawAllEdges();
+            }
+            
+            if (GUILayout.Button("Delete Intersect"))
+            {
+                GraphCreator.DeleteIntersectingEdges();
+            }
         }
     }
 }

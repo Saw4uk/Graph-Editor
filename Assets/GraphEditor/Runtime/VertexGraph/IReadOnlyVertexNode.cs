@@ -2,7 +2,7 @@
 
 namespace GraphEditor
 {
-    public interface IReadOnlyNode
+    public interface IReadOnlyVertexNode
     {
         public int Vertex { get; }
         public IReadOnlyCollection<int> NeighboursVertex { get; }

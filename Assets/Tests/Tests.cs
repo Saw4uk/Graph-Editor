@@ -1,6 +1,7 @@
 using System.Linq;
 using GraphEditor;
 using NUnit.Framework;
+using UnityEngine;
 
 public class Tests
 {
@@ -52,5 +53,35 @@ public class Tests
         graph.AddNode(3);
         
         Assert.IsFalse(UndirectedVertexGraph.CheckGraphForConnectivity(graph));
+    }
+
+    [Test]
+    public void TestSegmentIntersection()
+    {
+        var a1 = new Vector2(0, -100);
+        var a2 = new Vector2(0, 100);
+        
+        var b1 = new Vector2(-100, 0);
+        var b2 = new Vector2(100, 0);
+        
+        Assert.IsTrue(CustomMath.SegmentsIsIntersects(a1, a2, b1, b2));
+        Assert.IsTrue(CustomMath.SegmentsIsIntersects(a2, a1, b2, b1));
+        
+        Assert.IsFalse(CustomMath.SegmentsIsIntersects(a1, b1, a2, b2));
+        
+        Assert.IsTrue(CustomMath.SegmentsIsIntersects(a1, b1, a1, b2));
+    }
+    
+    [Test]
+    public void TestSegmentIntersection1()
+    {
+        var a1 = new Vector2(1, 1);
+        var a2 = new Vector2(3, 2);
+        
+        var b1 = new Vector2(1, 4);
+        var b2 = new Vector2(2, -1);
+        
+        Assert.IsTrue(CustomMath.SegmentsIsIntersects(a1, a2, b1, b2));
+        Assert.IsTrue(CustomMath.SegmentsIsIntersects(a2, a1, b2, b1));
     }
 }

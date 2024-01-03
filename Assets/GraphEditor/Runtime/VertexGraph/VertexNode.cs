@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace GraphEditor
 {
-    public class VertexNode : IReadOnlyNode
+    public class VertexNode : IReadOnlyVertexNode
     {
         public int Vertex { get; }
         public IReadOnlyCollection<int> NeighboursVertex => NeighboursVertexSet;

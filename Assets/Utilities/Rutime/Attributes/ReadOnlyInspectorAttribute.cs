@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
 
-namespace LineWars
+
+public class ReadOnlyInspectorAttribute : PropertyAttribute
 {
-    public class ReadOnlyInspectorAttribute: PropertyAttribute
-    {
-        
-    }
 }

@@ -1,26 +1,27 @@
-﻿using System;
+﻿// ReSharper disable Unity.InefficientPropertyAccess
+
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
-// ReSharper disable Unity.InefficientPropertyAccess
+
 
 namespace GraphEditor
 {
-    public class GraphCreator : MonoBehaviour
+    public abstract class GraphCreatorBase<TNode, TEdge, TGraph> : MonoBehaviour
+        where TNode : MonoBehaviour, IMonoNode<TNode, TEdge>
+        where TEdge : MonoBehaviour, IMonoEdge<TNode, TEdge>
+        where TGraph : MonoBehaviour, IMonoGraph
     {
-        [Header("CreatorSettings")] 
-        [SerializeField] private bool autoInitialize;
-        [SerializeField] private int numberOfIterations = 1000;
+        [Header("Prefabs")] 
+        [SerializeField] private TGraph graphPrefab;
+        [SerializeField] private TNode monoNodePrefab;
+        [SerializeField] private TEdge monoEdgePrefab;
 
-        [Header("Prefabs")]
-        [SerializeField] private MonoGraph graphPrefab;
-        [SerializeField] private MonoNode monoNodePrefab;
-        [SerializeField] private MonoEdge monoEdgePrefab;
-
-        [Header("Points settings")] 
+        [Header("Points settings")]
         [SerializeField] private Vector2 areaSize;
-        [SerializeField, Min(0)]private float paddings = 0.3f;
+
+        [SerializeField, Min(0)] private float paddings = 0.3f;
         [SerializeField] private float powerOfConnection;
         [SerializeField, Range(0, 1)] private float multiplierOfConnection;
         [SerializeField] private float powerOfRepulsion;
@@ -30,29 +31,23 @@ namespace GraphEditor
         [SerializeField] private int nodesCount;
         [SerializeField] private Vector2Int edgesRange;
 
-        private UndirectedVertexGraph undirectedGraph;
-        private MonoGraph monoGraph;
+        private TGraph monoGraph;
 
-        private Dictionary<int, MonoNode> monoNodes;
-        private Dictionary<int, MonoEdge> monoEdges;
+        private Dictionary<int, TNode> monoNodes;
+        private Dictionary<int, TEdge> monoEdges;
+        
+        private IObjectCreator creator;
 
-
-        private void Awake()
+        public void Initialize(IObjectCreator creator)
         {
-            if (autoInitialize)
-            {
-                Restart();
-                for (int i = 0; i < numberOfIterations; i++)
-                    Iterate();
-                RedrawAllEdges();
-            }
+            this.creator = creator;
         }
-
+        
+        
         public void Restart()
         {
-            GenerateConnectiveGraph();
-            CreateInstanceOfGraph();
-            DrawLine();
+            var graph = GenerateConnectiveGraph();
+            CreateInstanceOfGraph(graph);
         }
 
         public void Iterate()
@@ -92,8 +87,61 @@ namespace GraphEditor
             {
                 monoNodes[nodeId].transform.position += (Vector3) force;
             }
-            
+
             AssignNodes();
+        }
+
+        public void DeleteIntersectingEdges()
+        {
+            foreach (var monoEdge1 in monoEdges.Values.ToArray())
+            {
+                foreach (var monoEdge2 in monoEdges.Values.ToArray())
+                {
+                    if (monoEdge1 == null || monoEdge2 == null)
+                    {
+                        continue;
+                    }
+                    if (monoEdge1.FirstNode == monoEdge2.FirstNode 
+                        || monoEdge1.FirstNode == monoEdge2.SecondNode 
+                        || monoEdge1.SecondNode == monoEdge2.FirstNode
+                        || monoEdge1.SecondNode== monoEdge2.SecondNode)
+                    {
+                        continue;
+                    }
+                    if (!CustomMath.SegmentsIsIntersects(
+                            monoEdge1.FirstNode.Position, monoEdge1.SecondNode.Position,
+                            monoEdge2.FirstNode.Position, monoEdge2.SecondNode.Position))
+                    {
+                        continue;
+                    }
+                    
+                    var ordered = new[] {monoEdge1, monoEdge2}
+                        .OrderBy(x => (x.FirstNode.Edges.Count() == 1 || x.SecondNode.Edges.Count() == 1) ? 0 : 1)
+                        .ThenBy(x => (x.FirstNode.transform.position - x.SecondNode.transform.position).magnitude);
+                    
+                    var edgeToDelete = ordered.Last();
+                    edgeToDelete.FirstNode.RemoveEdge(edgeToDelete);
+                    edgeToDelete.SecondNode.RemoveEdge(edgeToDelete);
+                    
+                    if (edgeToDelete.FirstNode.EdgesCount == 0)
+                        DestroyNode(edgeToDelete.FirstNode.Id);
+                    if (edgeToDelete.SecondNode.EdgesCount == 0)
+                        DestroyNode(edgeToDelete.SecondNode.Id);
+                    DestroyEdge(edgeToDelete.Id);
+                }
+            }
+        }
+
+        private void DestroyNode(int nodeId)
+        {
+            creator.ReleaseInstance(monoNodes[nodeId].gameObject);
+            monoNodes.Remove(nodeId);
+        }
+
+        private void DestroyEdge(int edgeId)
+        {
+            creator.ReleaseInstance(monoEdges[edgeId].gameObject);
+            monoEdges.Remove(edgeId);
         }
 
         private void AssignNodes()
@@ -107,15 +155,15 @@ namespace GraphEditor
             }
         }
 
-        private void CreateInstanceOfGraph()
+        public void CreateInstanceOfGraph(UndirectedVertexGraph undirectedGraph)
         {
-            monoNodes = new Dictionary<int, MonoNode>();
-            monoEdges = new Dictionary<int, MonoEdge>();
+            monoNodes = new Dictionary<int, TNode>();
+            monoEdges = new Dictionary<int, TEdge>();
 
-            monoGraph = Instantiate(graphPrefab);
+            monoGraph = creator.CreateInstance(graphPrefab);
             foreach (var node in undirectedGraph.Nodes)
             {
-                var monoNode = Instantiate(monoNodePrefab, monoGraph.NodesParent.transform);
+                var monoNode = creator.CreateInstance(monoNodePrefab, monoGraph.NodesParent.transform);
                 monoNode.transform.position = GetRandomPositionInArea();
                 monoNode.Initialize(node.Vertex);
                 monoNodes[node.Vertex] = monoNode;
@@ -124,7 +172,7 @@ namespace GraphEditor
             var edgeIndex = 0;
             foreach (var (node1, node2) in undirectedGraph.Edges)
             {
-                var monoEdge = Instantiate(monoEdgePrefab, monoGraph.EdgesParent.transform);
+                var monoEdge = creator.CreateInstance(monoEdgePrefab, monoGraph.EdgesParent.transform);
                 monoEdge.Initialize(edgeIndex, monoNodes[node1.Vertex], monoNodes[node2.Vertex]);
                 monoNodes[node1.Vertex].AddEdge(monoEdge);
                 monoNodes[node2.Vertex].AddEdge(monoEdge);
@@ -139,28 +187,30 @@ namespace GraphEditor
                 monoEdge.Redraw();
         }
 
-        private void GenerateConnectiveGraph()
+        private UndirectedVertexGraph GenerateConnectiveGraph()
         {
             for (var i = 0; i < 1000; i++)
             {
-                undirectedGraph = UndirectedVertexGraph.GenerateRandomGraph(nodesCount, (edgesRange.x, edgesRange.y));
-                if (undirectedGraph.IsConnectedGraph())
-                    return;
+                var graph = UndirectedVertexGraph.GenerateRandomGraph(nodesCount, (edgesRange.x, edgesRange.y));
+                if (graph.IsConnectedGraph())
+                    return graph;
             }
 
             Debug.LogError("Cant generate connective graph");
+            return null;
         }
 
         private Vector2 GetRandomPositionInArea()
         {
-            return new Vector2(Random.Range(paddings, areaSize.x - paddings),
-                Random.Range(paddings, areaSize.y - paddings));
+            return new Vector2(
+                Random.Range(paddings, areaSize.x - paddings),
+                Random.Range(paddings, areaSize.y - paddings)
+            );
         }
 
-        private void DrawLine()
+        public void DrawBorder()
         {
             var lineRenderer = new GameObject("LineRenderer").AddComponent<LineRenderer>();
-            lineRenderer.sharedMaterial = new Material(Shader.Find("Standart"));
             lineRenderer.transform.SetParent(monoGraph.transform);
 
             lineRenderer.loop = true;
