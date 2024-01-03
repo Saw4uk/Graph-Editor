@@ -11,7 +11,7 @@ namespace GraphEditor
     
         private void OnEnable()
         {
-            GraphCreator.Initialize(new EditorObjectCreator());
+            GraphCreator.Initialize(new EditorObjectCreatorAndDestroyer());
             EditorApplication.update += Update;
         }
     
@@ -63,9 +63,16 @@ namespace GraphEditor
                 GraphCreator.RedrawAllEdges();
             }
             
-            if (GUILayout.Button("Delete Intersect"))
+            if (GUILayout.Button("Delete Intersects by Count"))
             {
-                GraphCreator.DeleteIntersectingEdges();
+                Undo.IncrementCurrentGroup();
+                GraphCreator.DeleteIntersectingEdgesByIntersectionsCount();
+            }
+            
+            if (GUILayout.Button("Delete Intersects by Length"))
+            {
+                Undo.IncrementCurrentGroup();
+                GraphCreator.DeleteIntersectingEdgesByLength();
             }
         }
     }

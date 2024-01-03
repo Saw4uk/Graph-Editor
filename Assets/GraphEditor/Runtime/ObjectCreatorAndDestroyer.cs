@@ -2,7 +2,7 @@
 
 namespace GraphEditor
 {
-    public class ObjectCreator: IObjectCreator
+    public class ObjectCreatorAndDestroyer: IObjectCreatorAndDestroyer
     {
         public TObj CreateInstance<TObj>(TObj obj) where TObj : Object
         {

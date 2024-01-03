@@ -12,7 +12,7 @@ namespace GraphEditor
     public abstract class GraphToolBase<TNode, TEdge, TGraph> : EditorTool
         where TNode : MonoBehaviour, IMonoNode<TNode, TEdge>
         where TEdge : MonoBehaviour, IMonoEdge<TNode, TEdge>
-        where TGraph : MonoBehaviour, IMonoGraph
+        where TGraph : MonoBehaviour, IMonoGraph<TNode, TEdge>
     {
         private TEdge monoEdgePrefab;
         private TNode monoNodePrefab;

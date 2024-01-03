@@ -7,14 +7,12 @@ namespace GraphEditor
 {
     public class UndirectedVertexGraph
     {
+        private Stack<Action> undoActions = new Stack<Action>();
         private readonly Dictionary<int, VertexNode> nodes = new();
 
         public IReadOnlyDictionary<int, IReadOnlyVertexNode> AsReadOnlyNodesDictionary
         {
-            get
-            {
-                return nodes.ToDictionary(x => x.Key, x => (IReadOnlyVertexNode) x.Value);
-            }
+            get { return nodes.ToDictionary(x => x.Key, x => (IReadOnlyVertexNode) x.Value); }
         }
 
         public IEnumerable<IReadOnlyVertexNode> Nodes => nodes.Values;
@@ -41,9 +39,29 @@ namespace GraphEditor
 
         public void AddNode(int vertex)
         {
+            _AddNode(vertex);
+            undoActions.Push(() => _RemoveNode(vertex));
+        }
+
+        public void _AddNode(int vertex)
+        {
             if (nodes.ContainsKey(vertex))
                 throw new InvalidOperationException();
             nodes[vertex] = new VertexNode(vertex);
+        }
+
+        public bool RemoveNode(int vertex)
+        {
+            var removed = _RemoveNode(vertex);
+            if (removed)
+                undoActions.Push(() => _AddNode(vertex));
+
+            return removed;
+        }
+
+        private bool _RemoveNode(int vertex)
+        {
+            return nodes.Remove(vertex);
         }
 
         public bool CheckForConnection(int vertex1, int vertex2)
@@ -54,24 +72,45 @@ namespace GraphEditor
 
         public void ConnectNodes(int vertex1, int vertex2)
         {
+            if (_ConnectNodes(vertex1, vertex2))
+                undoActions.Push(() => _DisconnectNodes(vertex1, vertex2));
+        }
+
+        private bool _ConnectNodes(int vertex1, int vertex2)
+        {
             if (CheckForConnection(vertex1, vertex2))
-                return;
+                return false;
             nodes[vertex1].NeighboursVertexSet.Add(vertex2);
             nodes[vertex2].NeighboursVertexSet.Add(vertex1);
+            return true;
         }
 
         public void DisconnectNodes(int vertex1, int vertex2)
         {
+            if (_DisconnectNodes(vertex1, vertex2))
+                undoActions.Push(() => _ConnectNodes(vertex1, vertex2));
+        }
+
+        private bool _DisconnectNodes(int vertex1, int vertex2)
+        {
             if (!CheckForConnection(vertex1, vertex2))
-                return;
+                return false;
             nodes[vertex1].NeighboursVertexSet.Remove(vertex2);
             nodes[vertex2].NeighboursVertexSet.Remove(vertex1);
+            return true;
+        }
+
+        public void Undo()
+        {
+            if (undoActions.Count > 0)
+                undoActions.Pop().Invoke();
         }
 
         public bool IsConnectedGraph()
         {
             return CheckGraphForConnectivity(this);
         }
+
         public override string ToString()
         {
             return string.Join("\n", nodes.Values.Select(x => x.ToString()));
