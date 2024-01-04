@@ -1,0 +1,20 @@
+{
+    "name": "GraphEditor.Editor",
+    "rootNamespace": "GraphEditor",
+    "references": [
+        "GUID:62bfac92484bbd9408b6ea00e3873abd",
+        "GUID:403d8ee4abf1e694089c3e8d3edff032",
+        "GUID:d5360bf8a6102b74484b8f2d6eb3d187"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
