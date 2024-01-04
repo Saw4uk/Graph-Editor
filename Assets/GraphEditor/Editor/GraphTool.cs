@@ -9,6 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace GraphEditor
 {
+    [EditorTool("Create graph")]
     public class GraphTool : EditorTool
     {
         private MonoEdge monoEdgePrefab;
