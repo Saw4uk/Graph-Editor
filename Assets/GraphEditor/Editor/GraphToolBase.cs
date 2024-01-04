@@ -9,19 +9,23 @@ using Object = UnityEngine.Object;
 
 namespace GraphEditor
 {
-    public abstract class GraphToolBase<TNode, TEdge, TGraph> : EditorTool
-        where TNode : MonoBehaviour, IMonoNode<TNode, TEdge>
-        where TEdge : MonoBehaviour, IMonoEdge<TNode, TEdge>
-        where TGraph : MonoBehaviour, IMonoGraph<TNode, TEdge>
+    public class GraphTool : EditorTool
     {
-        private TEdge monoEdgePrefab;
-        private TNode monoNodePrefab;
-        private TGraph graph;
+        private MonoEdge monoEdgePrefab;
+        private MonoNode monoNodePrefab;
+        private MonoGraph graph;
         
-        private SelectionListener<TNode> nodeListener;
+        private SelectionListener<MonoNode> nodeListener;
 
-        protected abstract TNode GetNodePrefab();
-        protected abstract TEdge GetEdgePrefab();
+        private MonoNode GetNodePrefab()
+        {
+            return Resources.Load<MonoNode>("Prefabs/Node");
+        }
+
+        private MonoEdge GetEdgePrefab()
+        {
+            return Resources.Load<MonoEdge>("Prefabs/Edge");
+        }
 
         public override void OnActivated()
         {
@@ -40,7 +44,7 @@ namespace GraphEditor
 
             EditorApplication.RepaintHierarchyWindow();
 
-            nodeListener = new SelectionListener<TNode>();
+            nodeListener = new SelectionListener<MonoNode>();
         }
         
 
@@ -74,8 +78,8 @@ namespace GraphEditor
         private void AssignGraph()
         {
             var graphObj = GameObject.Find("Graph") ?? new GameObject("Graph");
-            graph = graphObj.GetComponent<TGraph>() ??
-                    graphObj.AddComponent<TGraph>();
+            graph = graphObj.GetComponent<MonoGraph>() ??
+                    graphObj.AddComponent<MonoGraph>();
 
             if (graph.NodesParent == null)
             {
@@ -92,9 +96,9 @@ namespace GraphEditor
 
         private void DeleteSelectedNodes()
         {
-            var allDeletedEdges = new List<TEdge>();
-            var allDeletedNodes = new List<TNode>();
-            var allNeighboringNodes = new List<TNode>();
+            var allDeletedEdges = new List<MonoEdge>();
+            var allDeletedNodes = new List<MonoNode>();
+            var allNeighboringNodes = new List<MonoNode>();
 
             foreach (var node in nodeListener.GetActive().ToArray())
             {
@@ -163,7 +167,7 @@ namespace GraphEditor
             }
         }
 
-        private void ConnectOrDisconnectNodes(TNode firstMonoNode, TNode secondMonoNode)
+        private void ConnectOrDisconnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode)
         {
             var intersect = GetIntersectEdges(firstMonoNode, secondMonoNode);
             if (intersect.Count == 0)
@@ -172,7 +176,7 @@ namespace GraphEditor
                 DisconnectNodes(firstMonoNode, secondMonoNode, intersect);
         }
 
-        private TEdge ConnectNodes(TNode firstMonoNode, TNode secondMonoNode)
+        private MonoEdge ConnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode)
         {
             Undo.IncrementCurrentGroup();
 
@@ -192,15 +196,15 @@ namespace GraphEditor
             return edge;
         }
 
-        private TEdge CreateEdge()
+        private MonoEdge CreateEdge()
         {
-            var edge = (TEdge) PrefabUtility.InstantiatePrefab(monoEdgePrefab, graph.EdgesParent.transform);
+            var edge = (MonoEdge) PrefabUtility.InstantiatePrefab(monoEdgePrefab, graph.EdgesParent.transform);
             Undo.RegisterCreatedObjectUndo(edge.gameObject, "CreateEdge");
             SceneVisibilityManager.instance.DisablePicking(edge.gameObject, false);
             return edge;
         }
 
-        private void DisconnectNodes(TNode firstMonoNode, TNode secondMonoNode, List<TEdge> intersect)
+        private void DisconnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode, List<MonoEdge> intersect)
         {
             Undo.IncrementCurrentGroup();
             Undo.RecordObject(firstMonoNode, "DisconnectNodes");
@@ -217,11 +221,11 @@ namespace GraphEditor
             EditorUtility.SetDirty(secondMonoNode);
         }
 
-        private TNode CreateNode()
+        private MonoNode CreateNode()
         {
             Undo.IncrementCurrentGroup();
 
-            var node = (TNode) PrefabUtility.InstantiatePrefab(monoNodePrefab, graph.NodesParent.transform);
+            var node = (MonoNode) PrefabUtility.InstantiatePrefab(monoNodePrefab, graph.NodesParent.transform);
             node.transform.position = GetMousePosition2D();
             node.Initialize(GetNextIndex(node));
             Selection.activeObject = node.gameObject;
@@ -236,7 +240,7 @@ namespace GraphEditor
         {
             if (target is GameObject activeObj)
             {
-                if (activeObj.GetComponent<TNode>() == null) return;
+                if (activeObj.GetComponent<MonoNode>() == null) return;
 
                 EditorGUI.BeginChangeCheck();
                 var oldPos = activeObj.transform.position;
@@ -246,7 +250,7 @@ namespace GraphEditor
                 {
                     foreach (var node in targets
                                  .OfType<GameObject>()
-                                 .GetComponentMany<TNode>()
+                                 .GetComponentMany<MonoNode>()
                             )
                     {
                         Undo.RecordObject(node.transform, "Move Node");
@@ -257,7 +261,7 @@ namespace GraphEditor
             }
         }
 
-        private void ReDrawEdges(TNode node)
+        private void ReDrawEdges(MonoNode node)
         {
             foreach (var edge in node.Edges)
             {
@@ -266,7 +270,7 @@ namespace GraphEditor
         }
 
 
-        private List<TEdge> GetIntersectEdges(TNode firstMonoNode, TNode secondMonoNode)
+        private List<MonoEdge> GetIntersectEdges(MonoNode firstMonoNode, MonoNode secondMonoNode)
         {
             return firstMonoNode.Edges
                 .Intersect(secondMonoNode.Edges)
@@ -299,7 +303,7 @@ namespace GraphEditor
             return nextIndex;
         }
 
-        private void RedrawEdgeEditor(TEdge monoEdge)
+        private void RedrawEdgeEditor(MonoEdge monoEdge)
         {
             Undo.RecordObject(monoEdge.gameObject, "Redraw Edge");
             monoEdge.name = $"Edge{monoEdge.Id}";

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GraphEditor
 {
-    public class MonoNode : MonoBehaviour, IMonoNode<MonoNode, MonoEdge>
+    public class MonoNode : MonoBehaviour, INumbered
     {
         [SerializeField] private int id;
 

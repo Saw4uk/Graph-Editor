@@ -2,7 +2,7 @@
 
 namespace GraphEditor
 {
-    public class MonoEdge : MonoBehaviour, IMonoEdge<MonoNode, MonoEdge>
+    public class MonoEdge : MonoBehaviour, INumbered
     {
         [Header("Graph Settings")]
         [SerializeField] private int id;
