@@ -121,6 +121,6 @@ namespace DataStructures
 
     public interface IReadOnlyIndexList<T> : IReadOnlyDictionary<int, T>
     {
-        public IReadOnlyDictionary<T, int> ObjectToIndex { get; }
+        IReadOnlyDictionary<T, int> ObjectToIndex { get; }
     }
 }

@@ -1,10 +1,11 @@
 {
     "name": "GraphEditor.Editor",
-    "rootNamespace": "GraphEditor",
     "references": [
         "GUID:62bfac92484bbd9408b6ea00e3873abd",
         "GUID:403d8ee4abf1e694089c3e8d3edff032",
-        "GUID:d5360bf8a6102b74484b8f2d6eb3d187"
+        "GUID:d5360bf8a6102b74484b8f2d6eb3d187",
+        "GUID:343deaaf83e0cee4ca978e7df0b80d21",
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab"
     ],
     "includePlatforms": [
         "Editor"

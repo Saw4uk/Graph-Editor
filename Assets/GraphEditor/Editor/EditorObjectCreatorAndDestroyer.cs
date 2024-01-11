@@ -1,7 +1,8 @@
-﻿using UnityEditor;
+﻿using GraphEditor.Runtime;
+using UnityEditor;
 using UnityEngine;
 
-namespace GraphEditor
+namespace GraphEditor.Editor
 {
     public class EditorObjectCreatorAndDestroyer : IObjectCreatorAndDestroyer
     {

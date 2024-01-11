@@ -1,7 +1,9 @@
 ﻿// ReSharper disable Unity.InefficientPropertyAccess
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using GraphEditor.Runtime;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -76,9 +78,9 @@ namespace GraphEditor
                 nodeAndForce[monoEdge.SecondNode.Id] -= node1Node2Force;
             }
 
-            foreach (var (nodeId, force) in nodeAndForce)
+            foreach (var pair in nodeAndForce)
             {
-                monoGraph.IdToNode[nodeId].transform.position += (Vector3) force;
+                monoGraph.IdToNode[pair.Key].transform.position += (Vector3) pair.Value;
             }
 
             AssignNodes();
@@ -287,13 +289,15 @@ namespace GraphEditor
         private void DestroyNode(int nodeId)
         {
             creator.ReleaseInstance(monoGraph.IdToNode[nodeId].gameObject);
-            monoGraph.IdToNode.Remove(nodeId);
+            if (monoGraph.ContainsNode(nodeId))
+                monoGraph.RemoveNode(nodeId);
         }
 
         private void DestroyEdge(int edgeId)
         {
             creator.ReleaseInstance(monoGraph.IdToEdge[edgeId].gameObject);
-            monoGraph.IdToEdge.Remove(edgeId);
+            if (monoGraph.ContainsEdge(edgeId))
+                monoGraph.RemoveEdge(edgeId);
         }
     }
 }

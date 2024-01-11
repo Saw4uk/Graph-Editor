@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using GraphEditor.Runtime;
 using UnityEditor;
 using UnityEditor.EditorTools;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using Undo = UnityEditor.Undo;
 // ReSharper disable Unity.InefficientPropertyAccess
 
 
-namespace GraphEditor
+namespace GraphEditor.Editor
 {
     [EditorTool("Create graph")]
     public class GraphTool : EditorTool
@@ -28,31 +31,35 @@ namespace GraphEditor
             return Resources.Load<MonoEdge>("Prefabs/Edge");
         }
 
-        public override void OnActivated()
+        public void OnActivated()
         {
-            base.OnActivated();
-
-            monoEdgePrefab = GetEdgePrefab();
-            monoNodePrefab = GetNodePrefab();
-
-            AssignGraph();
-
-            foreach (var gameObject in FindObjectsOfType<GameObject>())
-                SceneVisibilityManager.instance.DisablePicking(gameObject, false);
-
-            SceneVisibilityManager.instance.EnablePicking(graph.gameObject, false);
-            SceneVisibilityManager.instance.EnablePicking(graph.NodesParent.gameObject, true);
-
-            EditorApplication.RepaintHierarchyWindow();
-
-            nodeListener = new SelectionListener<MonoNode>();
+            throw new NotImplementedException();
+            
+            // base.OnActivated();
+            //
+            // monoEdgePrefab = GetEdgePrefab();
+            // monoNodePrefab = GetNodePrefab();
+            //
+            // AssignGraph();
+            //
+            // foreach (var gameObject in FindObjectsOfType<GameObject>())
+            //     SceneVisibilityManager.instance.DisablePicking(gameObject, false);
+            //
+            // SceneVisibilityManager.instance.EnablePicking(graph.gameObject, false);
+            // SceneVisibilityManager.instance.EnablePicking(graph.NodesParent.gameObject, true);
+            //
+            // EditorApplication.RepaintHierarchyWindow();
+            //
+            // nodeListener = new SelectionListener<MonoNode>();
         }
         
 
-        public override void OnWillBeDeactivated()
+        public void OnWillBeDeactivated()
         {
-            base.OnWillBeDeactivated();
-            OnDisable();
+            throw new NotImplementedException();
+            
+            // base.OnWillBeDeactivated();
+            // OnDisable();
         }
 
         private void OnDisable()
@@ -162,7 +169,7 @@ namespace GraphEditor
                 case 2:
                     ConnectOrDisconnectNodes(activeNodes[0], activeNodes[1]);
                     break;
-                case > 2:
+                default:
                     Debug.LogError("Too many nodes");
                     break;
             }

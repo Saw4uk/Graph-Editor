@@ -2,6 +2,6 @@
 {
     public interface INumbered
     {
-        public int Id { get; }
+        int Id { get; }
     }
 }
