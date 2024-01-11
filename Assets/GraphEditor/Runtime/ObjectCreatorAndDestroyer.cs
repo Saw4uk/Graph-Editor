@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace GraphEditor
+namespace GraphEditor.Runtime
 {
     public class ObjectCreatorAndDestroyer: IObjectCreatorAndDestroyer
     {

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 
-namespace GraphEditor
+namespace GraphEditor.Runtime
 {
     public interface IReadOnlyVertexNode
     {
-        public int Vertex { get; }
-        public IReadOnlyCollection<int> NeighboursVertex { get; }
+        int Vertex { get; }
+        IReadOnlyCollection<int> NeighboursVertex { get; }
     }
 }

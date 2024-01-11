@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Random = System.Random;
 
-namespace GraphEditor
+namespace GraphEditor.Runtime
 {
     public class UndirectedVertexGraph
     {
         private Stack<Action> undoActions = new Stack<Action>();
-        private readonly Dictionary<int, VertexNode> nodes = new();
+        private readonly Dictionary<int, VertexNode> nodes = new Dictionary<int, VertexNode>();
 
         public IReadOnlyDictionary<int, IReadOnlyVertexNode> AsReadOnlyNodesDictionary
         {

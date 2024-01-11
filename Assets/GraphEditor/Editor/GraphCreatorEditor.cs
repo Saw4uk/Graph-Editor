@@ -1,10 +1,12 @@
-﻿using UnityEditor;
+﻿using GraphEditor.Runtime;
+using UnityEditor;
 using UnityEngine;
+using Undo = UnityEditor.Undo;
 
-namespace GraphEditor
+namespace GraphEditor.Editor
 {
     [CustomEditor(typeof(GraphCreator))]
-    public class GraphCreatorEditor : Editor
+    public class GraphCreatorEditor : UnityEditor.Editor
     {
         private GraphCreator GraphCreator => (GraphCreator) target;
         private bool iterateStarted;
