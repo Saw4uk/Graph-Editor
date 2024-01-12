@@ -335,6 +335,27 @@ namespace GraphEditor.Runtime
 
             return mostRemoteNodes;
         }
-    
+
+        public static void BFS(MonoNode start,
+            Action<MonoNode, MonoNode> beforeTransitionAction = null)
+        {
+            var visited = new HashSet<MonoNode>();
+            var queue = new Queue<MonoNode>();
+            queue.Enqueue(start);
+            visited.Add(start);
+            while(queue.Count != 0)
+            {
+                var node = queue.Dequeue();
+                
+                foreach(var neighbor in node.Neighbors)
+                {
+                    beforeTransitionAction(node, neighbor);
+                    if (visited.Contains(neighbor))
+                        continue;
+                    queue.Enqueue(neighbor);
+                    visited.Add(neighbor);
+                }
+            }
+        }
     }
 }

@@ -43,7 +43,7 @@ namespace GraphEditor.Runtime
             undoActions.Push(() => _RemoveNode(vertex));
         }
 
-        public void _AddNode(int vertex)
+        private void _AddNode(int vertex)
         {
             if (nodes.ContainsKey(vertex))
                 throw new InvalidOperationException();

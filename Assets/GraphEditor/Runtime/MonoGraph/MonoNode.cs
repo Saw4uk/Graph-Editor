@@ -21,6 +21,7 @@ namespace GraphEditor.Runtime
         public int Id => id;
         public Vector2 Position => transform.position;
         public IEnumerable<MonoEdge> Edges => edges;
+        public IEnumerable<MonoNode> Neighbors => GetNeighbors();
         public int EdgesCount => edges.Count;
         public SpriteRenderer SpriteRenderer => spriteRenderer;
 

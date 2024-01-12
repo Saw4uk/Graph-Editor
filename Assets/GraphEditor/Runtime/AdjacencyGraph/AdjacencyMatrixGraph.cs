@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace GraphEditor.Runtime
 {
-    public class AdjacencyMatrixGraph
+    public class AdjacencyMatrixGraph : IEquatable<AdjacencyMatrixGraph>
     {
         private bool[,] adjacencyMatrix;
 
         public int NodeCount => adjacencyMatrix.GetLength(0);
-        
+
         public AdjacencyMatrixGraph(bool[,] adjacencyMatrix)
         {
             if (adjacencyMatrix.GetLength(0) != adjacencyMatrix.GetLength(1))
@@ -24,7 +25,7 @@ namespace GraphEditor.Runtime
         public IReadOnlyList<bool> GetAdjacencyArray(int nodeId)
         {
             var resultArray = new bool[NodeCount];
-            for(var i = 0; i < NodeCount; i++)
+            for (var i = 0; i < NodeCount; i++)
             {
                 resultArray[i] = adjacencyMatrix[nodeId, i];
             }
@@ -43,7 +44,7 @@ namespace GraphEditor.Runtime
             adjacencyMatrix[nodeId2, nodeId1] = value;
         }
 
-        public void FindNumberOfSimpleCycles()
+        public int FindNumberOfSimpleCycles()
         {
             int ans = 1;
             int[,] dp = new int[(1 << NodeCount), NodeCount];
@@ -82,6 +83,8 @@ namespace GraphEditor.Runtime
                     }
                 }
             }
+
+            return ans;
         }
 
         private int Builtin_popcountll(long x)
@@ -99,10 +102,40 @@ namespace GraphEditor.Runtime
             return (int)((Math.Log10(n & -n)) / Math.Log10(2)) + 1;
         }
 
+        public override bool Equals(object obj)
+        {
+            if (!(obj is AdjacencyMatrixGraph graph))
+                return false;
+            return graph.Equals(this);
+        }
+
+        public override int GetHashCode()
+        {
+            int hash = 12314;
+            for (int i = 0; i < NodeCount; i++)
+            {
+                for (int j = 0; j < NodeCount; j++)
+                {
+                    var value = adjacencyMatrix[i, j] ? 1 : 0;
+                    hash = hash * 31 + value;
+                }
+            }
+            return hash;
+        }
+        public bool Equals(AdjacencyMatrixGraph other)
+        {
+            var equal =
+            adjacencyMatrix.Rank == other.adjacencyMatrix.Rank &&
+            Enumerable.Range(0, adjacencyMatrix.Rank)
+            .All(dimension => adjacencyMatrix.GetLength(dimension) == other.adjacencyMatrix.GetLength(dimension)) &&
+            adjacencyMatrix.Cast<bool>().SequenceEqual(other.adjacencyMatrix.Cast<bool>());
+            return equal;
+        }
+
         public static AdjacencyMatrixGraph FromMonoGraph(MonoGraph graph)
         {
             var newGraph = new AdjacencyMatrixGraph(graph.Nodes.Count);
-            foreach(var edge in graph.Edges)
+            foreach (var edge in graph.Edges)
             {
                 var nodeId1 = graph.Nodes.FindIndex(edge.FirstNode);
                 var nodeId2 = graph.Nodes.FindIndex(edge.SecondNode);
@@ -111,5 +144,6 @@ namespace GraphEditor.Runtime
 
             return newGraph;
         }
+
     }
 }
