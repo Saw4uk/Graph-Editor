@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using UnityEngine;
 
 namespace GraphEditor.Runtime
 {
+    [CreateAssetMenu(fileName = "BridgesTask", menuName = "Tasks/Bridges")]
     public class BridgesTask : BaseTask<BridgesTask>
     {
 
