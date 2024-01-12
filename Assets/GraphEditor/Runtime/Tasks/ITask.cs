@@ -3,6 +3,6 @@
     public interface ITask
     {
         string GetDescription();
-        bool CheckTask();
+        bool CheckTask(MonoGraph monoGraph);
     }
 }

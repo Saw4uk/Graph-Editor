@@ -20,7 +20,7 @@ namespace GraphEditor.Runtime
         [DisplayName("Глубина")] 
         private int Depth => (int)Math.Floor(Math.Log(NumberLeaves, 2));
     
-        public override bool CheckTask()
+        public override bool CheckTask(MonoGraph graph)
         {
             return true;
         }

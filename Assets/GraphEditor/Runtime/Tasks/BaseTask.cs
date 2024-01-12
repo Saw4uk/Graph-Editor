@@ -14,7 +14,7 @@ namespace GraphEditor.Runtime
         static BaseTask()
         {
             properties = typeof(T)
-                .GetProperties(BindingFlags.Instance | BindingFlags.NonPublic)
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(property => property.GetCustomAttribute<DisplayNameAttribute>() != null)
                 .ToArray();
         }
@@ -26,6 +26,6 @@ namespace GraphEditor.Runtime
             return string.Join("\n", stringProperties);
         }
 
-        public abstract bool CheckTask();
+        public abstract bool CheckTask(MonoGraph monoGraph);
     }
 }

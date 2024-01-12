@@ -29,7 +29,7 @@ namespace GraphEditor.Runtime
 
         private void CheckTaskOnButtonClick()
         {
-            Debug.Log(task.CheckTask() ? "Верно" : "Неверно");
+            Debug.Log(task.CheckTask(GraphTool.Instance.Graph) ? "Верно" : "Неверно");
         }
     }
 }
