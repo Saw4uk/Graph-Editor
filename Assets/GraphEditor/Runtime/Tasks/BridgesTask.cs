@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿using GraphEditor.Attributes;
 using UnityEngine;
 
 namespace GraphEditor.Runtime
@@ -6,13 +6,11 @@ namespace GraphEditor.Runtime
     [CreateAssetMenu(fileName = "BridgesTask", menuName = "Tasks/Bridges")]
     public class BridgesTask : BaseTask<BridgesTask>
     {
-
         [SerializeField, Min(1)] private int bridgesCount;
 
         [DisplayName("Количество мостов")]
         public int BridgesCount => bridgesCount;
- 
-
+        
         public override bool CheckTask(MonoGraph monoGraph)
         {
             var graph = new UndirectedVertexGraph();
