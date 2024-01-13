@@ -87,7 +87,6 @@ namespace GraphEditor.Runtime
         private void OnMouseDrag()
         {
             var mousePosition = CameraController.MainCamera.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log(mousePosition - offsetPosition - transform.position);
             NodeSelector.Instance.DragSelectedObjects(mousePosition - offsetPosition - transform.position);
         }
     }
