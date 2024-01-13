@@ -1,10 +1,4 @@
-﻿using GraphEditor.Runtime;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using GraphEditor.Attributes;
 using UnityEngine;
 
 namespace GraphEditor.Runtime
@@ -14,8 +8,7 @@ namespace GraphEditor.Runtime
     {
         [SerializeField, Min(1)] private int nodeCount;
         [SerializeField, Min(1)] private int edgeCount;
-
-
+        
         [DisplayName("Количество вершин")]
         public int NodeCount => nodeCount;
 
@@ -24,8 +17,8 @@ namespace GraphEditor.Runtime
 
         public override bool CheckTask(MonoGraph monoGraph)
         {
-            return monoGraph.Edges.Count == edgeCount 
-                && monoGraph.Nodes.Count == nodeCount;
+            return monoGraph.Edges.Count == edgeCount && 
+                   monoGraph.Nodes.Count == nodeCount;
         }
     }
 }

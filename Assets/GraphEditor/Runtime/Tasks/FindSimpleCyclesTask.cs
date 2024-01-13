@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel;
+﻿using GraphEditor.Attributes;
 using UnityEngine;
 
 namespace GraphEditor.Runtime
