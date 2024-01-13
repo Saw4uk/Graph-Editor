@@ -26,7 +26,7 @@ namespace GraphEditor.Runtime
         }
     }
 
-    public abstract class BaseTask : ScriptableObject, ITask
+    public abstract class BaseTask : ITask
     {
         public abstract string GetDescription();
         public abstract bool CheckTask(MonoGraph monoGraph);

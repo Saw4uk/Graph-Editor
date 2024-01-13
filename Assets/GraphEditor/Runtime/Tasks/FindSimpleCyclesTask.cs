@@ -1,14 +1,17 @@
 ﻿using GraphEditor.Attributes;
-using UnityEngine;
 
 namespace GraphEditor.Runtime
 {
-    [CreateAssetMenu(fileName = "Cycle Task", menuName = "Tasks/Cycles")]
     public class FindSimpleCyclesTask : BaseTask<FindSimpleCyclesTask>
     {
-        [SerializeField] private int simpleCyclesCount;
+        private int simpleCyclesCount;
 
-        [DisplayName("Количество циклов")]
+        public FindSimpleCyclesTask(int simpleCyclesCount)
+        {
+            this.simpleCyclesCount = simpleCyclesCount;
+        }
+
+        //[DisplayName("Количество циклов")]
         public int SimpleCyclesCount => simpleCyclesCount;
 
         public override bool CheckTask(MonoGraph monoGraph)

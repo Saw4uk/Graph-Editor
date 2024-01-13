@@ -1,14 +1,18 @@
 ﻿using GraphEditor.Attributes;
-using UnityEngine;
 
 namespace GraphEditor.Runtime
 {
-    [CreateAssetMenu(fileName = "New Nodes And Edges Task", menuName = "Tasks/Nodes and Edges")]
     public class NodesAndEdgesTask : BaseTask<NodesAndEdgesTask>
     {
-        [SerializeField, Min(1)] private int nodeCount;
-        [SerializeField, Min(1)] private int edgeCount;
-        
+        private int nodeCount;
+        private int edgeCount;
+
+        public NodesAndEdgesTask(int nodeCount, int edgeCount)
+        {
+            this.nodeCount = nodeCount;
+            this.edgeCount = edgeCount;
+        }
+
         [DisplayName("Количество вершин")]
         public int NodeCount => nodeCount;
 

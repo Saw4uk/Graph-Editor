@@ -1,14 +1,17 @@
 ﻿using GraphEditor.Attributes;
-using UnityEngine;
 
 namespace GraphEditor.Runtime
 {
-    [CreateAssetMenu(fileName = "BridgesTask", menuName = "Tasks/Bridges")]
     public class BridgesTask : BaseTask<BridgesTask>
     {
-        [SerializeField, Min(1)] private int bridgesCount;
+        private int bridgesCount;
 
-        [DisplayName("Количество мостов")]
+        public BridgesTask(int bridgesCount)
+        {
+            this.bridgesCount = bridgesCount;
+        }
+
+        //[DisplayName("Количество мостов")]
         public int BridgesCount => bridgesCount;
         
         public override bool CheckTask(MonoGraph monoGraph)
