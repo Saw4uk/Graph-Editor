@@ -54,16 +54,16 @@ namespace GraphEditor
             foreach (var monoNode in  monoGraph.Nodes)
             {
                 var nodePosition = monoNode.transform.position;
-                Vector2 wallForce = new Vector2(1 / (multiplierOfRepulsion * Mathf.Pow(nodePosition.x, powerOfRepulsion)), 0);
-                wallForce += new Vector2(-1 / (multiplierOfRepulsion * Mathf.Pow(areaSize.x - nodePosition.x, powerOfRepulsion)), 0);
-                wallForce += new Vector2(0, 1 / (multiplierOfRepulsion * Mathf.Pow(nodePosition.y, powerOfRepulsion)));
-                wallForce += new Vector2(0, -1 / (multiplierOfRepulsion * Mathf.Pow(areaSize.y - nodePosition.y, powerOfRepulsion)));
+                Vector2 wallForce = new Vector2(multiplierOfRepulsion / Mathf.Pow(nodePosition.x, powerOfRepulsion), 0);
+                wallForce += new Vector2(-multiplierOfRepulsion / Mathf.Pow(areaSize.x - nodePosition.x, powerOfRepulsion), 0);
+                wallForce += new Vector2(0, multiplierOfRepulsion / Mathf.Pow(nodePosition.y, powerOfRepulsion));
+                wallForce += new Vector2(0, -multiplierOfRepulsion / Mathf.Pow(areaSize.y - nodePosition.y, powerOfRepulsion));
 
                 Vector2 nodesForce = Vector2.zero;
                 foreach (var neighbor in monoGraph.Nodes.Where(x => x.Id != monoNode.Id))
                 {
                     Vector2 force = monoNode.transform.position - neighbor.transform.position;
-                    nodesForce += 1 / (multiplierOfRepulsion * Mathf.Pow(force.magnitude, powerOfRepulsion)) * force.normalized;
+                    nodesForce += multiplierOfRepulsion / Mathf.Pow(force.magnitude, powerOfRepulsion) * force.normalized;
                 }
 
                 nodeAndForce[monoNode.Id] += wallForce + nodesForce;
@@ -230,17 +230,17 @@ namespace GraphEditor
             {
                 var monoNode = creator.CreateInstance(monoNodePrefab, monoGraph.NodesParent.transform);
                 monoNode.transform.position = GetRandomPositionInArea();
-                monoNode.Initialize(node.Vertex);
-                monoGraph.IdToNode[node.Vertex] = monoNode;
+                monoNode.Initialize(node.Value);
+                monoGraph.IdToNode[node.Value] = monoNode;
             }
 
             var edgeIndex = 0;
             foreach (var (node1, node2) in undirectedGraph.Edges)
             {
                 var monoEdge = creator.CreateInstance(monoEdgePrefab, monoGraph.EdgesParent.transform);
-                monoEdge.Initialize(edgeIndex, monoGraph.IdToNode[node1.Vertex], monoGraph.IdToNode[node2.Vertex]);
-                monoGraph.IdToNode[node1.Vertex].AddEdge(monoEdge);
-                monoGraph.IdToNode[node2.Vertex].AddEdge(monoEdge);
+                monoEdge.Initialize(edgeIndex, monoGraph.IdToNode[node1.Value], monoGraph.IdToNode[node2.Value]);
+                monoGraph.IdToNode[node1.Value].AddEdge(monoEdge);
+                monoGraph.IdToNode[node2.Value].AddEdge(monoEdge);
                 monoGraph.IdToEdge[edgeIndex] = monoEdge;
                 edgeIndex++;
             }

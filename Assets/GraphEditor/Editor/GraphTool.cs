@@ -7,7 +7,6 @@ using UnityEditor.EditorTools;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using Undo = UnityEditor.Undo;
-// ReSharper disable Unity.InefficientPropertyAccess
 
 
 namespace GraphEditor.Editor
@@ -31,37 +30,24 @@ namespace GraphEditor.Editor
             return Resources.Load<MonoEdge>("Prefabs/Edge");
         }
 
-        public void OnActivated()
+        public void OnEnable()
         {
-            throw new NotImplementedException();
+            monoEdgePrefab = GetEdgePrefab();
+            monoNodePrefab = GetNodePrefab();
             
-            // base.OnActivated();
-            //
-            // monoEdgePrefab = GetEdgePrefab();
-            // monoNodePrefab = GetNodePrefab();
-            //
-            // AssignGraph();
-            //
-            // foreach (var gameObject in FindObjectsOfType<GameObject>())
-            //     SceneVisibilityManager.instance.DisablePicking(gameObject, false);
-            //
-            // SceneVisibilityManager.instance.EnablePicking(graph.gameObject, false);
-            // SceneVisibilityManager.instance.EnablePicking(graph.NodesParent.gameObject, true);
-            //
-            // EditorApplication.RepaintHierarchyWindow();
-            //
-            // nodeListener = new SelectionListener<MonoNode>();
+            AssignGraph();
+            
+            foreach (var gameObject in FindObjectsOfType<GameObject>())
+                SceneVisibilityManager.instance.DisablePicking(gameObject, false);
+            
+            SceneVisibilityManager.instance.EnablePicking(graph.gameObject, false);
+            SceneVisibilityManager.instance.EnablePicking(graph.NodesParent.gameObject, true);
+            
+            EditorApplication.RepaintHierarchyWindow();
+            
+            nodeListener = new SelectionListener<MonoNode>();
         }
         
-
-        public void OnWillBeDeactivated()
-        {
-            throw new NotImplementedException();
-            
-            // base.OnWillBeDeactivated();
-            // OnDisable();
-        }
-
         private void OnDisable()
         {
             foreach (var gameObject in FindObjectsOfType<GameObject>())

@@ -2,9 +2,9 @@
 
 namespace GraphEditor.Runtime
 {
-    public interface IReadOnlyVertexNode
+    public interface IReadOnlyVertex
     {
-        int Vertex { get; }
+        int Value { get; }
         IReadOnlyCollection<int> NeighboursVertex { get; }
     }
 }

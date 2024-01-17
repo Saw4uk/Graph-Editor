@@ -335,6 +335,5 @@ namespace GraphEditor.Runtime
 
             return mostRemoteNodes;
         }
-    
     }
 }
