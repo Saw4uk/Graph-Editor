@@ -85,4 +85,29 @@ public class Tests
         Assert.IsTrue(CustomMath.SegmentsIsIntersects(a1, a2, b1, b2));
         Assert.IsTrue(CustomMath.SegmentsIsIntersects(a2, a1, b2, b1));
     }
+
+    [Test]
+    public void TestAdjacencyMatrixGraph()
+    {
+        bool[,] adj
+        = { { false, true, true, true },
+            { true, false, true, false },
+            { true, true, false, true },
+            { true, false, true, false } };
+
+        bool[,] adj2
+        = { { false, true, true, true },
+            { true, false, true, false },
+            { true, true, false, true },
+            { true, false, true, false } };
+
+        var graph = new AdjacencyMatrixGraph(adj);
+        var graph2 = new AdjacencyMatrixGraph(adj2);
+
+        var testValue = graph.FindNumberOfSimpleCycles();
+
+        Assert.AreEqual(2, testValue);
+        Assert.AreEqual(graph, graph2);
+
+    }
 }

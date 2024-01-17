@@ -7,26 +7,27 @@ namespace GraphEditor.Runtime
 {
     public class TaskController : MonoBehaviour
     {
-        [SerializeField] private BaseTask taskObject;
+        [SerializeField] private TaskData taskData;
         [SerializeField] private string taskTitleText = "Необходимо построить дерево удовлетворяющее требованиям:";
         [SerializeField] private TMP_Text titleField;
         [SerializeField] private TMP_Text descriptionField;
         [SerializeField] private Button checkButton;
-        
-    
+
+        private ITask currentTask;
+
         void Awake()
         {
-            if (taskObject == null)
-                throw new ArgumentException($"Task is not an implementation of {typeof(ITask)}");
-        
+            if (taskData == null)
+                throw new ArgumentException("No Task Data!");
+            currentTask = taskData.GetNewTask();
             titleField.text = taskTitleText;
-            descriptionField.text = taskObject.GetDescription();
+            descriptionField.text = currentTask.GetDescription();
             checkButton.onClick.AddListener(CheckTaskOnButtonClick);
         }
 
         private void CheckTaskOnButtonClick()
         {
-            Debug.Log(taskObject.CheckTask() ? "Верно" : "Неверно");
+            Debug.Log(currentTask.CheckTask(GraphTool.Instance.Graph) ? "Верно" : "Неверно");
         }
     }
 }
