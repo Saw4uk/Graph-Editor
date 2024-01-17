@@ -12,11 +12,11 @@ namespace GraphEditor.Runtime
         [field: SerializeField] public GameObject NodesParent { get; set; }
         [field: SerializeField] public GameObject EdgesParent { get; set; }
 
-        private readonly List<MonoNode> nodes;
-        private readonly List<MonoEdge> edges;
+        private List<MonoNode> nodes;
+        private List<MonoEdge> edges;
 
-        private readonly Dictionary<int, MonoNode> idToNode;
-        private readonly Dictionary<int, MonoEdge> idToEdge;
+        private Dictionary<int, MonoNode> idToNode;
+        private Dictionary<int, MonoEdge> idToEdge;
         
         
         public IReadOnlyList<MonoNode> Nodes => nodes;
@@ -25,20 +25,37 @@ namespace GraphEditor.Runtime
         public INodeIndexer IdToNode => this;
         public IEdgeIndexer IdToEdge => this;
 
-        public MonoGraph()
+        private bool initialized;
+        public void Initialize()
         {
+            if (initialized)
+            {
+                Debug.LogError($"{nameof(MonoGraph)} is initialized");
+                return;
+            }
+            
+            initialized = true;
+            
             nodes = new List<MonoNode>();
             edges = new List<MonoEdge>();
-
+        
             idToNode = new Dictionary<int, MonoNode>();
             idToEdge = new Dictionary<int, MonoEdge>();
         }
         
-        public MonoGraph(IEnumerable<MonoNode> nodes, IEnumerable<MonoEdge> edges)
+        public void Initialize(IEnumerable<MonoNode> nodes, IEnumerable<MonoEdge> edges)
         {
+            if (initialized)
+            {
+                Debug.LogError($"{nameof(MonoGraph)} is initialized");
+                return;
+            }
+            
+            initialized = true;
+            
             this.nodes = nodes.ToList();
             this.edges = edges.ToList();
-
+        
             idToNode = this.nodes.ToDictionary(x => x.Id, x => x);
             idToEdge = this.edges.ToDictionary(x => x.Id, x => x);
         }

@@ -7,7 +7,7 @@ namespace DataStructures
 {
     public class IndexList<T> : IReadOnlyIndexList<T>
     {
-        private int lastIndex;
+        private int currentIndex = -1;
         private readonly Dictionary<int, T> indexToObject;
         private readonly Dictionary<T, int> objectToIndex;
         private readonly HashSet<int> indexesSet;
@@ -16,7 +16,6 @@ namespace DataStructures
 
         public IndexList() 
         {
-            lastIndex = 0;
             indexToObject = new Dictionary<int, T>();
             objectToIndex = new Dictionary<T, int>();
             indexesSet = new HashSet<int>();    
@@ -31,16 +30,17 @@ namespace DataStructures
                 objectToIndex[pair.Value] = pair.Key;
                 maxIndex = Mathf.Max(maxIndex, pair.Key);
             }
-            lastIndex = maxIndex + 1;
+            currentIndex = maxIndex;
         }
 
         public int Add(T item)
         {
-            var index = lastIndex;
+            currentIndex++;
+            while(indexesSet.Contains(currentIndex))
+                currentIndex++;
+            
+            var index = currentIndex;
             Add(index, item);
-            lastIndex++;
-            while(indexesSet.Contains(lastIndex))
-                lastIndex++;
 
             return index;
         }
@@ -71,7 +71,7 @@ namespace DataStructures
 
         public void Clear()
         {
-            lastIndex = 0;
+            currentIndex = 0;
             indexToObject.Clear();
             objectToIndex.Clear();
             indexesSet.Clear();

@@ -1,14 +1,9 @@
 {
     "name": "CustomUtilities.Editor",
-    "rootNamespace": "",
     "references": [
-        "GUID:403d8ee4abf1e694089c3e8d3edff032",
-        "GUID:343deaaf83e0cee4ca978e7df0b80d21",
-        "GUID:2bafac87e7f4b9b418d9448d219b01ab"
+        "GUID:791ce0e7e963336498c4be884a25c196"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

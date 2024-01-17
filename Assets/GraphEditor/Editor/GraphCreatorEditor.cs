@@ -13,7 +13,6 @@ namespace GraphEditor.Editor
     
         private void OnEnable()
         {
-            GraphCreator.Initialize(new EditorObjectCreatorAndDestroyer());
             EditorApplication.update += Update;
         }
     
@@ -26,7 +25,7 @@ namespace GraphEditor.Editor
         {
             if (iterateStarted)
             {
-                GraphCreator.Iterate();
+                GraphCreator.SimpleIterate();
                 GraphCreator.RedrawAllEdges();
             }
         }
@@ -57,12 +56,6 @@ namespace GraphEditor.Editor
             if (GUILayout.Button("Stop Iterate"))
             {
                 iterateStarted = false;
-            }
-            
-            if (GUILayout.Button("Single Iterate"))
-            {
-                GraphCreator.Iterate();
-                GraphCreator.RedrawAllEdges();
             }
             
             if (GUILayout.Button("Delete Intersects by Count"))

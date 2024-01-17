@@ -28,7 +28,7 @@ namespace DataStructures
             }
         }
 
-        protected void OnDestroy()
+        protected virtual void OnDestroy()
         {
             if (instance == this)
                 instance = null;
