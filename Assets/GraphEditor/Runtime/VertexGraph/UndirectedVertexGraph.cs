@@ -8,16 +8,16 @@ namespace GraphEditor.Runtime
     public class UndirectedVertexGraph
     {
         private Stack<Action> undoActions = new Stack<Action>();
-        private readonly Dictionary<int, VertexNode> nodes = new Dictionary<int, VertexNode>();
+        private readonly Dictionary<int, Vertex> nodes = new Dictionary<int, Vertex>();
 
-        public IReadOnlyDictionary<int, IReadOnlyVertexNode> AsReadOnlyNodesDictionary
+        public IReadOnlyDictionary<int, IReadOnlyVertex> AsReadOnlyNodesDictionary
         {
-            get { return nodes.ToDictionary(x => x.Key, x => (IReadOnlyVertexNode) x.Value); }
+            get { return nodes.ToDictionary(x => x.Key, x => (IReadOnlyVertex) x.Value); }
         }
 
-        public IEnumerable<IReadOnlyVertexNode> Nodes => nodes.Values;
+        public IEnumerable<IReadOnlyVertex> Nodes => nodes.Values;
 
-        public IEnumerable<(IReadOnlyVertexNode, IReadOnlyVertexNode)> Edges
+        public IEnumerable<(IReadOnlyVertex, IReadOnlyVertex)> Edges
         {
             get
             {
@@ -27,10 +27,10 @@ namespace GraphEditor.Runtime
                 {
                     foreach (var neighbour in node.NeighboursVertex)
                     {
-                        if (hashSet.Contains((node.Vertex, neighbour))
-                            || hashSet.Contains((neighbour, node.Vertex)))
+                        if (hashSet.Contains((node.Value, neighbour))
+                            || hashSet.Contains((neighbour, node.Value)))
                             continue;
-                        hashSet.Add((node.Vertex, neighbour));
+                        hashSet.Add((node.Value, neighbour));
                         yield return (node, nodes[neighbour]);
                     }
                 }
@@ -47,7 +47,7 @@ namespace GraphEditor.Runtime
         {
             if (nodes.ContainsKey(vertex))
                 throw new InvalidOperationException();
-            nodes[vertex] = new VertexNode(vertex);
+            nodes[vertex] = new Vertex(vertex);
         }
 
         public bool RemoveNode(int vertex)
@@ -126,7 +126,7 @@ namespace GraphEditor.Runtime
             var random = new Random();
             var graph = new UndirectedVertexGraph();
             for (var i = 0; i < nodesCount; i++)
-                graph.nodes[i] = new VertexNode(i);
+                graph.nodes[i] = new Vertex(i);
 
             for (var i = 0; i < nodesCount; i++)
             {
@@ -136,13 +136,13 @@ namespace GraphEditor.Runtime
                 var additionalEdgesCount = random.Next(minEdgesCount, maxEdgesCount);
 
                 var possibleNodesList = graph.nodes.Values
-                    .Where(x => x != node && !node.NeighboursVertexSet.Contains(x.Vertex) &&
+                    .Where(x => x != node && !node.NeighboursVertexSet.Contains(x.Value) &&
                                 x.NeighboursVertexSet.Count < edgesRange.Item2)
                     .ToArray();
 
                 var additionalEdges = possibleNodesList
                     .GetRandomElements(random, additionalEdgesCount)
-                    .Select(x => x.Vertex)
+                    .Select(x => x.Value)
                     .ToArray();
 
 

@@ -1,8 +1,7 @@
 {
-    "name": "CustomUtilities.Editor",
-    "references": [
-        "GUID:791ce0e7e963336498c4be884a25c196"
-    ],
+    "name": "CustomUtilities.Runtime",
+    "rootNamespace": "",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

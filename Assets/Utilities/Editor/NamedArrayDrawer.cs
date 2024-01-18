@@ -48,7 +48,7 @@ public class NamedArrayDrawer : PropertyDrawer
             case SerializedPropertyType.Color:
                 return prop.colorValue.ToString();
             case SerializedPropertyType.ObjectReference:
-                return prop.objectReferenceValue.ToString();
+                return prop.objectReferenceValue != null ? prop.objectReferenceValue.name : "Missing";
             case SerializedPropertyType.LayerMask:
                 break;
             case SerializedPropertyType.Enum:
