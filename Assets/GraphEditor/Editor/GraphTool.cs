@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 using Undo = UnityEditor.Undo;
 
 
-namespace GraphEditor.Editor
+namespace GraphEditor
 {
     [EditorTool("Create graph")]
     public class GraphTool : EditorTool

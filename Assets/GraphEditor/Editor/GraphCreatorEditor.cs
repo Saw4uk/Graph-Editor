@@ -3,12 +3,12 @@ using UnityEditor;
 using UnityEngine;
 using Undo = UnityEditor.Undo;
 
-namespace GraphEditor.Editor
+namespace GraphEditor
 {
-    [CustomEditor(typeof(GraphCreator))]
-    public class GraphCreatorEditor : UnityEditor.Editor
+    [CustomEditor(typeof(LineWarsGameGraphCreator))]
+    public class GraphCreatorEditor : Editor
     {
-        private GraphCreator GraphCreator => (GraphCreator)target;
+        private LineWarsGameGraphCreator LineWarsGameGraphCreator => (LineWarsGameGraphCreator)target;
         private bool iterateStarted;
 
         private void OnEnable()
@@ -25,8 +25,8 @@ namespace GraphEditor.Editor
         {
             if (iterateStarted)
             {
-                GraphCreator.SimpleIterate();
-                GraphCreator.RedrawAllEdges();
+                LineWarsGameGraphCreator.Iterate();
+                LineWarsGameGraphCreator.RedrawAllEdges();
             }
         }
 
@@ -42,9 +42,9 @@ namespace GraphEditor.Editor
                     DestroyImmediate(g.gameObject);
                 }
 
-                GraphCreator.Restart();
-                GraphCreator.RedrawAllEdges();
-                GraphCreator.DrawBorder();
+                LineWarsGameGraphCreator.Restart();
+                LineWarsGameGraphCreator.RedrawAllEdges();
+                LineWarsGameGraphCreator.DrawBorder();
                 iterateStarted = false;
             }
 
@@ -61,13 +61,13 @@ namespace GraphEditor.Editor
             if (GUILayout.Button("Delete Intersects by Count"))
             {
                 Undo.IncrementCurrentGroup();
-                GraphCreator.DeleteIntersectingEdgesByIntersectionsCount();
+                LineWarsGameGraphCreator.DeleteIntersectingEdgesByIntersectionsCount();
             }
 
             if (GUILayout.Button("Delete Intersects by Length"))
             {
                 Undo.IncrementCurrentGroup();
-                GraphCreator.DeleteIntersectingEdgesByLength();
+                LineWarsGameGraphCreator.DeleteIntersectingEdgesByLength();
             }
         }
     }

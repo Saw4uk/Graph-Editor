@@ -165,6 +165,39 @@ namespace GraphEditor.Runtime
             }
         }
 
+        public bool CheckForConnection(MonoNode node1, MonoNode node2)
+        {
+            return node1.GetLine(node2) != null;
+        }
+        public MonoEdge ConnectNodes(MonoNode node1, MonoNode node2, MonoEdge edgePrefab)
+        {
+            var edgeId = 0;
+            while (idToEdge.ContainsKey(edgeId))
+                edgeId++;
+            return ConnectNodes(node1, node2, edgePrefab, edgeId);
+        }
+
+        public void RedrawAllEdges()
+        {
+            foreach (var edge in edges)
+                edge.Redraw();
+        }
+        
+        public MonoEdge ConnectNodes(MonoNode node1, MonoNode node2, MonoEdge edgePrefab, int edgeId)
+        {
+            if (CheckForConnection(node1, node2))
+                return null;
+
+            var edge = Instantiate(edgePrefab, EdgesParent.transform);
+            edge.Initialize(edgeId, node1, node2);
+            node1.AddEdge(edge);
+            node2.AddEdge(edge);
+            
+            idToEdge.Add(edge.Id, edge);
+            edges.Add(edge);
+            return edge;
+        }
+
         public List<MonoNode> FindShortestPath(
             [NotNull] MonoNode start,
             [NotNull] MonoNode end,
@@ -371,6 +404,32 @@ namespace GraphEditor.Runtime
                         continue;
                     queue.Enqueue(neighbor);
                     visited.Add(neighbor);
+                }
+            }
+        }
+        
+        public IEnumerable<(MonoEdge, MonoEdge)> GetIntersectionsEdges()
+        {
+            foreach (var monoEdge1 in Edges.ToArray())
+            {
+                foreach (var monoEdge2 in Edges.ToArray())
+                {
+                    if (monoEdge1.FirstNode == monoEdge2.FirstNode
+                        || monoEdge1.FirstNode == monoEdge2.SecondNode
+                        || monoEdge1.SecondNode == monoEdge2.FirstNode
+                        || monoEdge1.SecondNode == monoEdge2.SecondNode)
+                    {
+                        continue;
+                    }
+
+                    if (!CustomMath.SegmentsIsIntersects(
+                            monoEdge1.FirstNode.Position, monoEdge1.SecondNode.Position,
+                            monoEdge2.FirstNode.Position, monoEdge2.SecondNode.Position))
+                    {
+                        continue;
+                    }
+
+                    yield return (monoEdge1, monoEdge2);
                 }
             }
         }

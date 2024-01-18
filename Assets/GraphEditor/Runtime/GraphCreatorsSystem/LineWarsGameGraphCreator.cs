@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 namespace GraphEditor
 {
-    public class GraphCreator : MonoBehaviour
+    public class LineWarsGameGraphCreator : MonoBehaviour
     {
         [Header("Prefabs")]
         [SerializeField] private MonoGraph graphPrefab;
@@ -36,7 +36,7 @@ namespace GraphEditor
         private MonoGraph monoGraph;
         private UndirectedVertexGraph vertexGraph;
 
-        public void LoadSettings(GraphCreatorSettings settings)
+        public void LoadSettings(LineWarsGameGraphCreatorSettings settings)
         {
             areaSize = settings.AreaSize;
             paddings = settings.Paddings;
@@ -50,21 +50,13 @@ namespace GraphEditor
 
         public MonoGraph Restart()
         {
-            if (monoGraph != null)
-                DestroyImmediate(monoGraph.gameObject);
-
             var undirectedVertexGraph = GenerateConnectiveGraph();
             return CreateInstanceOfGraph(undirectedVertexGraph);
         }
 
-        public void SimpleIterate()
+        public void Iterate()
         {
             Iterate(new[] { GetWallRepulsion(), GetNodesRepulsion(), GetConnectionsPower() });
-        }
-
-        public void HardIterate()
-        {
-            Iterate(new[] { GetWallRepulsion(), GetNodesRepulsion(), GetEdgesRepulsion(), GetConnectionsPower() });
         }
 
         public void Iterate(IEnumerable<IEnumerable<(int, Vector2)>> powers)
@@ -256,7 +248,7 @@ namespace GraphEditor
         {
             var edgeAndIntersections = new Dictionary<MonoEdge, List<MonoEdge>>();
 
-            foreach (var (monoEdge1, monoEdge2) in GetIntersectionsEdges())
+            foreach (var (monoEdge1, monoEdge2) in monoGraph.GetIntersectionsEdges())
             {
                 if (!edgeAndIntersections.ContainsKey(monoEdge1))
                     edgeAndIntersections[monoEdge1] = new List<MonoEdge>();
@@ -309,35 +301,9 @@ namespace GraphEditor
 
         public int GetIntersectionsCount()
         {
-            return GetIntersectionsEdges().Count() / 2;
+            return monoGraph.GetIntersectionsEdges().Count() / 2;
         }
-
-        public IEnumerable<(MonoEdge, MonoEdge)> GetIntersectionsEdges()
-        {
-            foreach (var monoEdge1 in monoGraph.Edges.ToArray())
-            {
-                foreach (var monoEdge2 in monoGraph.Edges.ToArray())
-                {
-                    if (monoEdge1.FirstNode == monoEdge2.FirstNode
-                        || monoEdge1.FirstNode == monoEdge2.SecondNode
-                        || monoEdge1.SecondNode == monoEdge2.FirstNode
-                        || monoEdge1.SecondNode == monoEdge2.SecondNode)
-                    {
-                        continue;
-                    }
-
-                    if (!CustomMath.SegmentsIsIntersects(
-                            monoEdge1.FirstNode.Position, monoEdge1.SecondNode.Position,
-                            monoEdge2.FirstNode.Position, monoEdge2.SecondNode.Position))
-                    {
-                        continue;
-                    }
-
-                    yield return (monoEdge1, monoEdge2);
-                }
-            }
-        }
-
+        
         private void AssignNodes()
         {
             foreach (var node in monoGraph.Nodes)
@@ -378,8 +344,7 @@ namespace GraphEditor
 
         public void RedrawAllEdges()
         {
-            foreach (var monoEdge in monoGraph.Edges)
-                monoEdge.Redraw();
+            monoGraph.RedrawAllEdges();
         }
 
         private UndirectedVertexGraph GenerateConnectiveGraph()
