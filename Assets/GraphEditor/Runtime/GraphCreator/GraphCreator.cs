@@ -12,7 +12,7 @@ namespace GraphEditor
 {
     public class GraphCreator : MonoBehaviour
     {
-        [Header("Prefabs")] 
+        [Header("Prefabs")]
         [SerializeField] private MonoGraph graphPrefab;
         [SerializeField] private MonoNode monoNodePrefab;
         [SerializeField] private MonoEdge monoEdgePrefab;
@@ -26,10 +26,10 @@ namespace GraphEditor
         [SerializeField] private float powerOfRepulsion = 2;
         [SerializeField, Range(0, 100)] private float multiplierOfRepulsion = 1;
 
-        [Header("Graph settings")] 
+        [Header("Graph settings")]
         [SerializeField] private int nodesCount = 10;
         [SerializeField] private Vector2Int edgesRange = new Vector2Int(2, 4);
-        
+
         [Header("Debug")]
         [SerializeField] private bool log = true;
 
@@ -47,24 +47,24 @@ namespace GraphEditor
             nodesCount = settings.NodesCount;
             edgesRange = settings.EdgesRange;
         }
-        
+
         public MonoGraph Restart()
         {
             if (monoGraph != null)
                 DestroyImmediate(monoGraph.gameObject);
-            
+
             var undirectedVertexGraph = GenerateConnectiveGraph();
             return CreateInstanceOfGraph(undirectedVertexGraph);
         }
-        
+
         public void SimpleIterate()
         {
-            Iterate(new []{GetWallRepulsion(), GetNodesRepulsion(), GetConnectionsPower()});
+            Iterate(new[] { GetWallRepulsion(), GetNodesRepulsion(), GetConnectionsPower() });
         }
-        
+
         public void HardIterate()
         {
-            Iterate(new []{GetWallRepulsion(),GetNodesRepulsion(), GetEdgesRepulsion(), GetConnectionsPower()});
+            Iterate(new[] { GetWallRepulsion(), GetNodesRepulsion(), GetEdgesRepulsion(), GetConnectionsPower() });
         }
 
         public void Iterate(IEnumerable<IEnumerable<(int, Vector2)>> powers)
@@ -76,12 +76,12 @@ namespace GraphEditor
             foreach (var enumerablePower in powers)
                 foreach (var (id, force) in enumerablePower)
                     nodeAndForce[id] += AssignForce(force);
-            
+
             foreach (var pair in nodeAndForce)
             {
                 var nodeId = pair.Key;
                 var force = pair.Value;
-                monoGraph.IdToNode[nodeId].transform.position += (Vector3) AssignForce(force);
+                monoGraph.IdToNode[nodeId].transform.position += (Vector3)AssignForce(force);
             }
 
             AssignNodes();
@@ -89,7 +89,7 @@ namespace GraphEditor
 
         public IEnumerable<(int, Vector2)> GetWallRepulsion()
         {
-            foreach (var monoNode in  monoGraph.Nodes)
+            foreach (var monoNode in monoGraph.Nodes)
             {
                 var nodePosition = monoNode.transform.position;
                 Vector2 wallForce = new Vector2(multiplierOfRepulsion / Mathf.Pow(nodePosition.x, powerOfRepulsion), 0);
@@ -138,8 +138,8 @@ namespace GraphEditor
                     var force1 = node.Position - center;
                     var force2 = GetRepulsionForce(force1);
                     yield return (node.Id, force2);
-                    yield return (edge.FirstNode.Id, -force2 /2);
-                    yield return (edge.SecondNode.Id, -force2 /2);
+                    yield return (edge.FirstNode.Id, -force2 / 2);
+                    yield return (edge.SecondNode.Id, -force2 / 2);
                 }
             }
         }
@@ -152,27 +152,27 @@ namespace GraphEditor
                 {
                     if (edge.FirstNode == node || edge.SecondNode == node)
                         continue;
-            
+
                     var force1 = CustomMath.GetMinVectorFromSegmentToPoint(
                         edge.FirstNode.Position,
                         edge.SecondNode.Position,
                         node.Position);
-                    
-                    if (force1.magnitude == 0 
-                        || force1.magnitude is NaN 
-                        || IsPositiveInfinity(force1.magnitude) 
+
+                    if (force1.magnitude == 0
+                        || force1.magnitude is NaN
+                        || IsPositiveInfinity(force1.magnitude)
                         || IsNegativeInfinity(force1.magnitude))
                         yield break;
-                    
+
                     var force2 = GetRepulsionForce(force1);
-                    
+
                     yield return (node.Id, force2);
-                    yield return (edge.FirstNode.Id, -force2/2);
-                    yield return (edge.SecondNode.Id, -force2/2);
+                    yield return (edge.FirstNode.Id, -force2 / 2);
+                    yield return (edge.SecondNode.Id, -force2 / 2);
                 }
             }
         }
-        
+
         private Vector2 GetRepulsionForce(Vector2 force)
         {
             return multiplierOfRepulsion / Mathf.Pow(force.magnitude, powerOfRepulsion) * force.normalized;
@@ -191,7 +191,7 @@ namespace GraphEditor
                 force.y = 0;
             return force;
         }
-        
+
         public void DeleteIntersectingEdgesByLength()
         {
             foreach (var monoEdge1 in monoGraph.Edges.ToArray())
@@ -202,10 +202,10 @@ namespace GraphEditor
                     {
                         continue;
                     }
-                    if (monoEdge1.FirstNode == monoEdge2.FirstNode 
-                        || monoEdge1.FirstNode == monoEdge2.SecondNode 
+                    if (monoEdge1.FirstNode == monoEdge2.FirstNode
+                        || monoEdge1.FirstNode == monoEdge2.SecondNode
                         || monoEdge1.SecondNode == monoEdge2.FirstNode
-                        || monoEdge1.SecondNode== monoEdge2.SecondNode)
+                        || monoEdge1.SecondNode == monoEdge2.SecondNode)
                     {
                         continue;
                     }
@@ -215,32 +215,32 @@ namespace GraphEditor
                     {
                         continue;
                     }
-                    
-                    var ordered = new[] {monoEdge1, monoEdge2}
+
+                    var ordered = new[] { monoEdge1, monoEdge2 }
                         .OrderBy(x => (x.FirstNode.Edges.Count() == 1 || x.SecondNode.Edges.Count() == 1) ? 0 : 1)
                         .ThenBy(x => (x.FirstNode.transform.position - x.SecondNode.transform.position).magnitude)
                         .ToArray();
-                    
+
                     var edgeToDelete = ordered[1];
-                    
+
                     vertexGraph.DisconnectNodes(edgeToDelete.FirstNode.Id, edgeToDelete.SecondNode.Id);
                     if (!vertexGraph.IsConnectedGraph())
                     {
                         vertexGraph.Undo();
                         edgeToDelete = ordered[0];
                     }
-                    
+
                     vertexGraph.DisconnectNodes(edgeToDelete.FirstNode.Id, edgeToDelete.SecondNode.Id);
                     if (!vertexGraph.IsConnectedGraph())
                     {
                         vertexGraph.Undo();
                         continue;
                     }
-                    
+
                     edgeToDelete.FirstNode.RemoveEdge(edgeToDelete);
                     edgeToDelete.SecondNode.RemoveEdge(edgeToDelete);
                     DestroyEdge(edgeToDelete.Id);
-                    
+
                     if (edgeToDelete.FirstNode.EdgesCount == 0)
                         DestroyNode(edgeToDelete.FirstNode.Id);
                     if (edgeToDelete.SecondNode.EdgesCount == 0)
@@ -248,14 +248,14 @@ namespace GraphEditor
                 }
             }
         }
-        
+
         /// <summary>
         /// В приоритете удаляются те ребра у которых больше всего пересечений
         /// </summary>
         public void DeleteIntersectingEdgesByIntersectionsCount()
         {
             var edgeAndIntersections = new Dictionary<MonoEdge, List<MonoEdge>>();
-            
+
             foreach (var (monoEdge1, monoEdge2) in GetIntersectionsEdges())
             {
                 if (!edgeAndIntersections.ContainsKey(monoEdge1))
@@ -278,9 +278,9 @@ namespace GraphEditor
                 }
                 vertexGraph.DisconnectNodes(edgeToDelete.FirstNode.Id, edgeToDelete.SecondNode.Id);
                 edgeAndIntersections.Remove(edgeToDelete);
-                
-                
-                if (vertexGraph.IsConnectedGraph() 
+
+
+                if (vertexGraph.IsConnectedGraph()
                     && idToNode[edgeToDelete.FirstNode.Id].NeighboursVertex.Count != 1
                     && idToNode[edgeToDelete.SecondNode.Id].NeighboursVertex.Count != 1)
                 {
@@ -337,7 +337,7 @@ namespace GraphEditor
                 }
             }
         }
-        
+
         private void AssignNodes()
         {
             foreach (var node in monoGraph.Nodes)
@@ -421,7 +421,7 @@ namespace GraphEditor
             lineRenderer.SetPosition(2, new Vector3(areaSize.x, areaSize.y, 0));
             lineRenderer.SetPosition(3, new Vector3(0, areaSize.y, 0));
         }
-        
+
         private void DestroyNode(int nodeId)
         {
             if (Application.isEditor)
@@ -435,7 +435,7 @@ namespace GraphEditor
         {
             if (Application.isEditor)
                 DestroyImmediate(monoGraph.IdToEdge[edgeId].gameObject);
-            else 
+            else
                 Destroy(monoGraph.IdToEdge[edgeId].gameObject);
             monoGraph.RemoveEdge(edgeId);
         }

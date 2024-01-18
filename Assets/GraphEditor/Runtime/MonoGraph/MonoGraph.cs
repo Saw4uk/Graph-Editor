@@ -17,8 +17,8 @@ namespace GraphEditor.Runtime
 
         private Dictionary<int, MonoNode> idToNode;
         private Dictionary<int, MonoEdge> idToEdge;
-        
-        
+
+
         public IReadOnlyList<MonoNode> Nodes => nodes;
         public IReadOnlyList<MonoEdge> Edges => edges;
 
@@ -33,16 +33,16 @@ namespace GraphEditor.Runtime
                 Debug.LogError($"{nameof(MonoGraph)} is initialized");
                 return;
             }
-            
+
             initialized = true;
-            
+
             nodes = new List<MonoNode>();
             edges = new List<MonoEdge>();
-        
+
             idToNode = new Dictionary<int, MonoNode>();
             idToEdge = new Dictionary<int, MonoEdge>();
         }
-        
+
         public void Initialize(IEnumerable<MonoNode> nodes, IEnumerable<MonoEdge> edges)
         {
             if (initialized)
@@ -50,23 +50,23 @@ namespace GraphEditor.Runtime
                 Debug.LogError($"{nameof(MonoGraph)} is initialized");
                 return;
             }
-            
+
             initialized = true;
-            
+
             this.nodes = nodes.ToList();
             this.edges = edges.ToList();
-        
+
             idToNode = this.nodes.ToDictionary(x => x.Id, x => x);
             idToEdge = this.edges.ToDictionary(x => x.Id, x => x);
         }
-        
+
         public void AddNode(MonoNode node)
         {
             if (node == null)
                 throw new ArgumentNullException();
             if (idToNode.ContainsKey(node.Id))
                 throw new ArgumentException();
-            
+
             nodes.Add(node);
             idToNode.Add(node.Id, node);
         }
@@ -80,7 +80,7 @@ namespace GraphEditor.Runtime
         {
             if (!idToNode.ContainsKey(nodeId))
                 return false;
-            
+
             nodes.Remove(idToNode[nodeId]);
             idToNode.Remove(nodeId);
             return true;
@@ -90,7 +90,7 @@ namespace GraphEditor.Runtime
         {
             return idToNode.ContainsKey(node.Id);
         }
-        
+
         public bool ContainsNode(int nodeId)
         {
             return idToNode.ContainsKey(nodeId);
@@ -102,12 +102,12 @@ namespace GraphEditor.Runtime
                 throw new ArgumentNullException();
             if (idToEdge.ContainsKey(edge.Id))
                 throw new ArgumentException();
-            if (edge.FirstNode == null 
+            if (edge.FirstNode == null
                 || edge.SecondNode == null
                 || !idToNode.ContainsKey(edge.FirstNode.Id)
                 || !idToNode.ContainsKey(edge.SecondNode.Id))
                 throw new ArgumentException();
-            
+
             edges.Add(edge);
             idToEdge.Add(edge.Id, edge);
         }
@@ -121,7 +121,7 @@ namespace GraphEditor.Runtime
         {
             if (!idToEdge.ContainsKey(edgeId))
                 return false;
-            
+
             edges.Remove(idToEdge[edgeId]);
             idToEdge.Remove(edgeId);
             return true;
@@ -164,13 +164,13 @@ namespace GraphEditor.Runtime
                 AddEdge(value);
             }
         }
-        
+
         public List<MonoNode> FindShortestPath(
             [NotNull] MonoNode start,
             [NotNull] MonoNode end,
             Func<MonoNode, MonoNode, bool> condition = null)
         {
-            if (start == null || !idToNode.ContainsKey(start.Id)) 
+            if (start == null || !idToNode.ContainsKey(start.Id))
                 throw new ArgumentNullException(nameof(start));
             if (end == null || !idToNode.ContainsKey(end.Id))
                 throw new ArgumentNullException(nameof(end));
@@ -306,7 +306,7 @@ namespace GraphEditor.Runtime
         {
             if (rootNode == null || !idToNode.ContainsKey(rootNode.Id))
                 throw new ArgumentException(nameof(rootNode));
-            
+
             var queue = new Queue<MonoNode>();
             var distanceMemory = new Dictionary<MonoNode, uint>();
 
@@ -326,8 +326,8 @@ namespace GraphEditor.Runtime
                 }
             }
         }
-        
-        
+
+
         public HashSet<(MonoNode, MonoNode)> FindMostRemoteNodes()
         {
             var maxDistance = uint.MinValue;
@@ -340,9 +340,9 @@ namespace GraphEditor.Runtime
                     if (distance > maxDistance)
                     {
                         maxDistance = distance;
-                        mostRemoteNodes = new HashSet<(MonoNode, MonoNode)>() {(node1, node2)};
+                        mostRemoteNodes = new HashSet<(MonoNode, MonoNode)>() { (node1, node2) };
                     }
-                    else if (distance == maxDistance 
+                    else if (distance == maxDistance
                              && !mostRemoteNodes.Contains((node2, node1)))
                     {
                         mostRemoteNodes.Add((node1, node2));
@@ -360,11 +360,11 @@ namespace GraphEditor.Runtime
             var queue = new Queue<MonoNode>();
             queue.Enqueue(start);
             visited.Add(start);
-            while(queue.Count != 0)
+            while (queue.Count != 0)
             {
                 var node = queue.Dequeue();
-                
-                foreach(var neighbor in node.Neighbors)
+
+                foreach (var neighbor in node.Neighbors)
                 {
                     beforeTransitionAction(node, neighbor);
                     if (visited.Contains(neighbor))
