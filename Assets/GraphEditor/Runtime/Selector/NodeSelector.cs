@@ -11,6 +11,10 @@ namespace GraphEditor.Runtime
 
         private HashSet<int> selectedObjects = new HashSet<int>();
 
+        [SerializeField] private float widthOfMeshSelectedObjects = 0.5f;
+
+        private Mesh meshSelectedObjects;
+
         public IEnumerable<MonoNode> SelectedNodes =>
             selectedObjects.Select(nodeId => GraphTool.Instance.Graph.IdToNode[nodeId]).ToArray();
 
@@ -23,6 +27,9 @@ namespace GraphEditor.Runtime
                 Debug.LogError($"Больше чем два {nameof(NodeSelector)} на сцене");
                 Destroy(gameObject);
             }
+
+            meshSelectedObjects = new Mesh();
+            GetComponent<MeshFilter>().mesh = meshSelectedObjects;
         }
 
         private void Update()
@@ -97,7 +104,7 @@ namespace GraphEditor.Runtime
         {
             if (selectedObjects.Contains(nodeId))
             {
-                Debug.LogError("The node has already been added to selectedObjects");
+                //Debug.LogError($"The node with ID {nodeId} has already been added to selectedObjects");
                 return;
             }
 
@@ -109,13 +116,16 @@ namespace GraphEditor.Runtime
         public void Remove(int nodeId)
         {
             if (!selectedObjects.Remove(nodeId))
+            {
+                //Debug.LogError($"SelectedObjects does not have a node with ID {nodeId}");
                 return;
+            }
 
             DeselectNode(nodeId);
             Debug.Log($"Node with ID {nodeId} was removed. Number of selected objects {selectedObjects.Count}");
         }
 
-        private void Clear()
+        public void Clear()
         {
             if (selectedObjects.Count < 1)
                 return;
@@ -124,6 +134,7 @@ namespace GraphEditor.Runtime
                 DeselectNode(nodeId);
 
             selectedObjects = new HashSet<int>();
+            meshSelectedObjects.Clear();
             Debug.Log($"Cleared");
         }
 
@@ -134,6 +145,8 @@ namespace GraphEditor.Runtime
             {
                 node.SpriteRenderer.color = new Color(0.97f, 0.51f, 0f);
             }
+
+            RedrawBordersSelectedObjects();
         }
 
         private void DeselectNode(int nodeId)
@@ -141,6 +154,8 @@ namespace GraphEditor.Runtime
             var node = GraphTool.Instance.Graph.IdToNode[nodeId];
             if (node != null)
                 node.SpriteRenderer.color = Color.white;
+
+            RedrawBordersSelectedObjects();
         }
 
         public void DragSelectedObjects(Vector3 deltaPosition)
@@ -155,6 +170,107 @@ namespace GraphEditor.Runtime
                 foreach (var edge in node.Edges)
                     edge.Redraw();
             }
+
+            RedrawBordersSelectedObjects();
+        }
+
+        private void RedrawBordersSelectedObjects()
+        {
+            if (!SelectedNodes.Any())
+            {
+                meshSelectedObjects.Clear();
+                return;
+            }
+            
+            var leftBottomCorner = Vector2.positiveInfinity;
+            var rightTopCorner = Vector2.negativeInfinity;
+
+            foreach (var node in SelectedNodes)
+            {
+                leftBottomCorner = Vector2.Min(leftBottomCorner, node.SpriteRenderer.bounds.min);
+                rightTopCorner = Vector2.Max(rightTopCorner, node.SpriteRenderer.bounds.max);
+            }
+
+            var corners = new[]
+            {
+                new Vector3(leftBottomCorner.x, leftBottomCorner.y), new Vector3(rightTopCorner.x, leftBottomCorner.y),
+                new Vector3(rightTopCorner.x, rightTopCorner.y), new Vector3(leftBottomCorner.x, rightTopCorner.y),
+            };
+
+            DrawHollowMesh(corners, widthOfMeshSelectedObjects);
+        }
+
+        void DrawHollowMesh(Vector3[] innerPoints, float width)
+        {
+            var pointsList = new List<Vector3>();
+
+            var outerPoints = GetOuterPoints(innerPoints, width);
+            pointsList.AddRange(outerPoints);
+            pointsList.AddRange(innerPoints);
+
+            var polygonPoints = pointsList.ToArray();
+            var polygonTriangles = DrawHollowTriangles(polygonPoints);
+
+            meshSelectedObjects.Clear();
+            meshSelectedObjects.vertices = polygonPoints;
+            meshSelectedObjects.triangles = polygonTriangles;
+        }
+
+        private int[] DrawHollowTriangles(Vector3[] points)
+        {
+            var sides = points.Length / 2;
+
+            var newTriangles = new List<int>();
+            for (var i = 0; i < sides; i++)
+            {
+                var outerIndex = i;
+                var innerIndex = i + sides;
+
+                //first triangle starting at outer edge i
+                newTriangles.Add(outerIndex);
+                newTriangles.Add(innerIndex);
+                newTriangles.Add((i + 1) % sides);
+
+                //second triangle starting at outer edge i
+                newTriangles.Add(outerIndex);
+                newTriangles.Add(sides + ((sides + i - 1) % sides));
+                newTriangles.Add(outerIndex + sides);
+            }
+
+            return newTriangles.ToArray();
+        }
+
+        private List<Vector3> GetOuterPoints(IReadOnlyList<Vector3> points, float width)
+        {
+            var outerPoints = new List<Vector3>();
+            var allResVectors = new List<Vector3>();
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                var p1 = i == 0 ? points[points.Count - 1] : points[i - 1];
+                var p2 = points[i];
+
+                var l = p2 - p1;
+
+                var resVec = new Vector2(l.y, -l.x).normalized * width;
+                allResVectors.Add(resVec);
+            }
+
+            for (int i = 0; i < allResVectors.Count; i++)
+            {
+                var n1 = i == 0 ? allResVectors[allResVectors.Count - 1] : allResVectors[i - 1];
+                var n2 = allResVectors[i];
+
+                var sum = n1 + n2;
+
+                var dotProduct = Vector3.Dot(n1, n2) + 1;
+
+                var currentPoint = i == 0 ? points[points.Count - 1] : points[i - 1];
+
+                outerPoints.Add(currentPoint + (sum / dotProduct));
+            }
+
+            return outerPoints;
         }
     }
 }

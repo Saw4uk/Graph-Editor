@@ -10,8 +10,7 @@ namespace GraphEditor.Runtime
     {
         public static GraphTool Instance { get; private set; }
 
-        [Header("Prefabs")] 
-        [SerializeField] private MonoGraph graphPrefab;
+        [Header("Prefabs")] [SerializeField] private MonoGraph graphPrefab;
         [SerializeField] private MonoNode monoNodePrefab;
         [SerializeField] private MonoEdge monoEdgePrefab;
 
@@ -51,6 +50,7 @@ namespace GraphEditor.Runtime
             var graphObj = GameObject.Find("Graph") ?? new GameObject("Graph");
             graph = graphObj.GetComponent<MonoGraph>() ??
                     graphObj.AddComponent<MonoGraph>();
+            graph.Initialize();
 
             if (graph.NodesParent == null)
             {
@@ -109,7 +109,7 @@ namespace GraphEditor.Runtime
         {
             var nodeInfo = GetNodeById(nodeId).GetNodeInfo();
             var removed = _DeleteNode(nodeInfo.id);
-            
+
             if (removed)
                 Undo.AddActions(
                     () => _CreateNode(nodeInfo),
@@ -149,19 +149,34 @@ namespace GraphEditor.Runtime
             return true;
         }
 
-        private void DeleteSelectedNodes()
+        public void DeleteSelectedNodes()
         {
-            var selectedNodes = NodeSelector.Instance.SelectedNodes;
+            var nodeDeletedNodeInfos = NodeSelector.Instance.SelectedNodes.Select(node => node.GetNodeInfo()).ToList();
+
+            if (!nodeDeletedNodeInfos.Any())
+                return;
+            
+            Undo.AddActions(
+                () => nodeDeletedNodeInfos.ForEach(nodeInfo => _CreateNode(nodeInfo)),
+                _DeleteSelectedNodes
+            );
+            
+            _DeleteSelectedNodes();
+        }
+
+        private void _DeleteSelectedNodes()
+        {
+            var selectedNodes = NodeSelector.Instance.SelectedNodes.ToArray();
+
+            if (!selectedNodes.Any())
+                return;
 
             var allDeletedEdges = new List<MonoEdge>();
             var allDeletedNodes = new List<MonoNode>();
             var allNeighboringNodes = new List<MonoNode>();
 
-            var nodeDeletedNodeInfos = new List<NodeInfo>();
-
             foreach (var node in selectedNodes)
             {
-                nodeDeletedNodeInfos.Add(node.GetNodeInfo());
                 allDeletedNodes.Add(node);
                 allNeighboringNodes.AddRange(node.GetNeighbors());
                 allDeletedEdges.AddRange(node.Edges);
@@ -198,11 +213,6 @@ namespace GraphEditor.Runtime
                 graph.RemoveNode(node);
                 Destroy(node.gameObject);
             }
-            
-            Undo.AddActions(
-                () => nodeDeletedNodeInfos.ForEach(nodeInfo => _CreateNode(nodeInfo)),
-                DeleteSelectedNodes
-            );
         }
 
         public void ConnectOrDisconnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode)
@@ -214,15 +224,15 @@ namespace GraphEditor.Runtime
                 DisconnectNodes(firstMonoNode.Id, secondMonoNode.Id);
         }
 
-        private MonoEdge ConnectNodes(int firstNodeId, int secondNodeId)
+        public MonoEdge ConnectNodes(int firstNodeId, int secondNodeId)
         {
             var edge = _ConnectNodes(firstNodeId, secondNodeId);
-            
+
             Undo.AddActions(
                 () => _DisconnectNodes(firstNodeId, secondNodeId),
                 () => _ConnectNodes(firstNodeId, secondNodeId)
             );
-            
+
             return edge;
         }
 
@@ -244,10 +254,10 @@ namespace GraphEditor.Runtime
             return edge;
         }
 
-        private void DisconnectNodes(int firstNodeId, int secondNodeId)
+        public void DisconnectNodes(int firstNodeId, int secondNodeId)
         {
             _DisconnectNodes(firstNodeId, secondNodeId);
-           
+
             Undo.AddActions(
                 () => _ConnectNodes(firstNodeId, secondNodeId),
                 () => _DisconnectNodes(firstNodeId, secondNodeId)

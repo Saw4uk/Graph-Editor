@@ -30,6 +30,7 @@ namespace GraphEditor.Runtime
         {
             id = index;
             edges = new List<MonoEdge>();
+            SelectionAreaController.Nodes.Add(this);
         }
 
         public void AddEdge(MonoEdge monoEdge)
@@ -57,6 +58,16 @@ namespace GraphEditor.Runtime
         {
             var neighborsId = GetNeighbors().Select(neighbor => neighbor.id).ToArray();
             return new NodeInfo(id, neighborsId, Position);
+        }
+
+        public void Select()
+        {
+            NodeSelector.Instance.Add(id);
+        }
+        
+        public void Deselect()
+        {
+            NodeSelector.Instance.Remove(id);
         }
 
         private void OnMouseDown()
@@ -88,6 +99,11 @@ namespace GraphEditor.Runtime
         {
             var mousePosition = CameraController.MainCamera.ScreenToWorldPoint(Input.mousePosition);
             NodeSelector.Instance.DragSelectedObjects(mousePosition - offsetPosition - transform.position);
+        }
+
+        private void OnDestroy()
+        {
+            SelectionAreaController.Nodes.Remove(this);
         }
     }
 }

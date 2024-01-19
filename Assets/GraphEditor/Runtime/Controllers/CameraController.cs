@@ -54,14 +54,14 @@ namespace GraphEditor.Runtime
 
         private void Update()
         {
-            if ((Input.GetMouseButtonDown(0) || Input.touches.Any(touch => touch.phase == TouchPhase.Began)) &&
+            if ((Input.GetMouseButtonDown(2) || Input.touches.Any(touch => touch.phase == TouchPhase.Began)) &&
                 !PointerIsOverUI() && !PointerIsOverLayer("Graph") && !UI.Instance.IsWaitingMouseClick)
             {
                 pivotPoint = MainCamera.ScreenToWorldPoint(Input.mousePosition);
                 isDragging = true;
             }
 
-            if (Input.GetMouseButton(0) && isDragging)
+            if (Input.GetMouseButton(2) && isDragging)
             {
                 if (Input.touches.Any(touch => touch.phase == TouchPhase.Ended))
                     pivotPoint = MainCamera.ScreenToWorldPoint(GetMidpointBetweenTouches());
