@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GraphEditor
 {
     [Serializable]
-    public class GraphCreatorSettings
+    public class LineWarsGameGraphCreatorSettings
     {
         [field: SerializeField] public Vector2 AreaSize { get; set; } = new Vector2(20, 40);
         [field: SerializeField, Min(0)] public float Paddings { get; set; } = 0.3f;
