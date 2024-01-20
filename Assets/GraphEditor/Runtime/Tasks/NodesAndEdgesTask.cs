@@ -7,7 +7,7 @@ namespace GraphEditor.Runtime
         private int nodeCount;
         private int edgeCount;
 
-        public NodesAndEdgesTask(int nodeCount, int edgeCount)
+        public NodesAndEdgesTask(int nodeCount, int edgeCount, TaskInfo taskInfo) : base(taskInfo)
         {
             this.nodeCount = nodeCount;
             this.edgeCount = edgeCount;

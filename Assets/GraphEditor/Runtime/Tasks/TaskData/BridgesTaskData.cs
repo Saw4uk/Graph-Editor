@@ -18,7 +18,7 @@ namespace GraphEditor.Runtime
         public override ITask GetNewTask()
         {
             var bridgesCount = UnityEngine.Random.Range(minBridgesCount, maxBridgesCount);
-            return new BridgesTask(bridgesCount);
+            return new BridgesTask(bridgesCount, taskInfo);
         }
     }
 }

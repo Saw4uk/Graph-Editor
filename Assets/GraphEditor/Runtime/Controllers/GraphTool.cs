@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DataStructures;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -8,28 +9,20 @@ namespace GraphEditor.Runtime
 {
     public class GraphTool : MonoBehaviour
     {
-        public static GraphTool Instance { get; private set; }
-
-        [Header("Prefabs")] [SerializeField] private MonoGraph graphPrefab;
+        [Header("Prefabs")]
         [SerializeField] private MonoNode monoNodePrefab;
         [SerializeField] private MonoEdge monoEdgePrefab;
 
         private MonoGraph graph;
+        private NodeSelector selector;
 
-        public MonoGraph Graph => graph;
-
-        private void Awake()
+        public MonoGraph Graph
         {
-            if (Instance == null)
-                Instance = this;
-            else
-            {
-                Debug.LogError($"Больше чем два {nameof(GraphTool)} на сцене");
-                Destroy(gameObject);
-            }
-
-            AssignGraph();
+            get => graph;
+            set => graph = value;
         }
+
+        public bool isEditable { get; set; }
 
         private void Update()
         {
@@ -45,24 +38,10 @@ namespace GraphEditor.Runtime
             }
         }
 
-        private void AssignGraph()
+        public void Initialize(MonoGraph monoGraph, NodeSelector selector)
         {
-            var graphObj = GameObject.Find("Graph") ?? new GameObject("Graph");
-            graph = graphObj.GetComponent<MonoGraph>() ??
-                    graphObj.AddComponent<MonoGraph>();
-            graph.Initialize();
-
-            if (graph.NodesParent == null)
-            {
-                graph.NodesParent = new GameObject("Nodes");
-                graph.NodesParent.transform.SetParent(graph.transform);
-            }
-
-            if (graph.EdgesParent == null)
-            {
-                graph.EdgesParent = new GameObject("Edges");
-                graph.EdgesParent.transform.SetParent(graph.transform);
-            }
+            graph = monoGraph;
+            this.selector = selector;
         }
 
         public MonoNode CreateNode(Vector2 position)
@@ -89,7 +68,7 @@ namespace GraphEditor.Runtime
                 if (graph.ContainsNode(neighborId))
                     _ConnectNodes(nodeInfo.id, neighborId);
 
-            NodeSelector.Instance.Add(node.Id);
+            selector.Add(node.Id);
 
             return node;
         }
@@ -141,7 +120,7 @@ namespace GraphEditor.Runtime
                 Destroy(deletedEdge.gameObject);
             }
 
-            NodeSelector.Instance.Remove(node.Id);
+            selector.Remove(node.Id);
             graph.RemoveNode(node);
 
             Destroy(node.gameObject);
@@ -151,7 +130,7 @@ namespace GraphEditor.Runtime
 
         public void DeleteSelectedNodes()
         {
-            var nodeDeletedNodeInfos = NodeSelector.Instance.SelectedNodes.Select(node => node.GetNodeInfo()).ToList();
+            var nodeDeletedNodeInfos = selector.SelectedNodes.Select(node => node.GetNodeInfo()).ToList();
 
             if (!nodeDeletedNodeInfos.Any())
                 return;
@@ -166,7 +145,7 @@ namespace GraphEditor.Runtime
 
         private void _DeleteSelectedNodes()
         {
-            var selectedNodes = NodeSelector.Instance.SelectedNodes.ToArray();
+            var selectedNodes = selector.SelectedNodes.ToArray();
 
             if (!selectedNodes.Any())
                 return;
@@ -209,7 +188,7 @@ namespace GraphEditor.Runtime
 
             foreach (var node in allDeletedNodes)
             {
-                NodeSelector.Instance.Remove(node.Id);
+                selector.Remove(node.Id);
                 graph.RemoveNode(node);
                 Destroy(node.gameObject);
             }
@@ -283,6 +262,22 @@ namespace GraphEditor.Runtime
         private MonoEdge CreateEdge()
         {
             return Instantiate(monoEdgePrefab, graph.EdgesParent.transform);
+        }
+        
+        public void MoveSelectedNodes(Vector3 deltaPosition)
+        {
+            foreach (var node in selector.SelectedNodes)
+            {
+                if (node == null)
+                    throw new ArgumentNullException();
+
+                node.transform.position += new Vector3(deltaPosition.x, deltaPosition.y);
+
+                foreach (var edge in node.Edges)
+                    edge.Redraw();
+            }
+
+            selector.RedrawBordersSelectedObjects();
         }
 
         private List<MonoEdge> GetIntersectEdges(MonoNode firstMonoNode, MonoNode secondMonoNode)

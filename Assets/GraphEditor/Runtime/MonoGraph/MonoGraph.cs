@@ -433,5 +433,58 @@ namespace GraphEditor.Runtime
                 }
             }
         }
+        
+        public bool CheckGraphForConnectivity()
+        {
+            if (nodes.Count < 2)
+                return true;
+
+            var check = new HashSet<MonoNode>();
+            var stack = new Stack<MonoNode>();
+            var firstNode = nodes.First();
+            stack.Push(firstNode);
+            check.Add(firstNode);
+            while (stack.Count != 0)
+            {
+                var node = stack.Pop();
+                foreach (var neighbour in node.GetNeighbors())
+                {
+                    if (check.Contains(neighbour))
+                        continue;
+                    check.Add(neighbour);
+                    stack.Push(neighbour);
+                }
+            }
+
+            return check.Count == nodes.Count;
+        }
+        
+        public Bounds GetBounds()
+        {
+            var leftBottomCorner = Vector2.positiveInfinity;
+            var rightTopCorner = Vector2.negativeInfinity;
+
+            foreach (var node in nodes)
+            {
+                leftBottomCorner = Vector2.Min(node.Position, leftBottomCorner);
+                rightTopCorner = Vector2.Max(node.Position, rightTopCorner);
+            }
+
+            return new Bounds((leftBottomCorner + rightTopCorner) / 2, rightTopCorner - leftBottomCorner);
+        }
+
+        public Vector2 GetGraphCenter()
+        {
+            var leftBottomCorner = Vector2.positiveInfinity;
+            var rightTopCorner = Vector2.negativeInfinity;
+
+            foreach (var node in nodes)
+            {
+                leftBottomCorner = Vector2.Min(node.Position, leftBottomCorner);
+                rightTopCorner = Vector2.Max(node.Position, rightTopCorner);
+            }
+
+            return (leftBottomCorner + rightTopCorner) / 2;
+        }
     }
 }

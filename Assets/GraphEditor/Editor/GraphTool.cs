@@ -17,7 +17,7 @@ namespace GraphEditor
         private MonoEdge monoEdgePrefab;
         private MonoNode monoNodePrefab;
         private MonoGraph graph;
-        
+
         private SelectionListener<MonoNode> nodeListener;
 
         private MonoNode GetNodePrefab()
@@ -34,20 +34,20 @@ namespace GraphEditor
         {
             monoEdgePrefab = GetEdgePrefab();
             monoNodePrefab = GetNodePrefab();
-            
+
             AssignGraph();
-            
+
             foreach (var gameObject in FindObjectsOfType<GameObject>())
                 SceneVisibilityManager.instance.DisablePicking(gameObject, false);
-            
+
             SceneVisibilityManager.instance.EnablePicking(graph.gameObject, false);
             SceneVisibilityManager.instance.EnablePicking(graph.NodesParent.gameObject, true);
-            
+
             EditorApplication.RepaintHierarchyWindow();
-            
+
             nodeListener = new SelectionListener<MonoNode>();
         }
-        
+
         private void OnDisable()
         {
             foreach (var gameObject in FindObjectsOfType<GameObject>())
@@ -192,7 +192,7 @@ namespace GraphEditor
 
         private MonoEdge CreateEdge()
         {
-            var edge = (MonoEdge) PrefabUtility.InstantiatePrefab(monoEdgePrefab, graph.EdgesParent.transform);
+            var edge = (MonoEdge)PrefabUtility.InstantiatePrefab(monoEdgePrefab, graph.EdgesParent.transform);
             Undo.RegisterCreatedObjectUndo(edge.gameObject, "CreateEdge");
             SceneVisibilityManager.instance.DisablePicking(edge.gameObject, false);
             return edge;
@@ -219,7 +219,7 @@ namespace GraphEditor
         {
             Undo.IncrementCurrentGroup();
 
-            var node = (MonoNode) PrefabUtility.InstantiatePrefab(monoNodePrefab, graph.NodesParent.transform);
+            var node = (MonoNode)PrefabUtility.InstantiatePrefab(monoNodePrefab, graph.NodesParent.transform);
             node.transform.position = GetMousePosition2D();
             node.Initialize(GetNextIndex(node));
             Selection.activeObject = node.gameObject;

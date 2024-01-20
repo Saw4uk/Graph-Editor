@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -25,6 +26,10 @@ namespace GraphEditor.Runtime
         [SerializeField] private float paddingsBottom;
         [SerializeField] private float paddingsLeft;
 
+        [Header("Move")] 
+        [SerializeField] private float timeToMove;
+        [SerializeField] private float heightPadding = 1f;
+
         private Canvas canvas;
         private Transform cameraTransform;
         
@@ -38,16 +43,12 @@ namespace GraphEditor.Runtime
 
         public static Camera MainCamera => Camera.main;
 
-        private void Awake()
+        public void Initialize()
         {
             if (MainCamera != null)
                 cameraTransform = MainCamera.GetComponent<Transform>();
 
             canvas = GameObject.Find("Canvas").GetComponent<Canvas>();
-        }
-
-        private void Start()
-        {
             MainCamera.orthographicSize = Mathf.Clamp(MainCamera.orthographicSize, minHeight, maxHeight);
             zoomValue = MainCamera.orthographicSize;
         }
@@ -105,6 +106,31 @@ namespace GraphEditor.Runtime
                 return hit.transform.gameObject.layer == LayerMask.NameToLayer(layerName);
 
             return false;
+        }
+        
+        public void MoveTo(Bounds bounds)
+        {
+            StopAllCoroutines();
+            StartCoroutine(MoveToPoint(bounds));
+        }
+        
+        private IEnumerator MoveToPoint(Bounds bounds)
+        {
+            var startPoint = cameraTransform.position;
+            var targetPoint = new Vector3(bounds.center.x, bounds.center.y, startPoint.z);
+            float completionPercentage = 0;
+            
+            var newOrthographicSize = Mathf.Max(bounds.size.x / (2 * MainCamera.aspect), bounds.size.y / 2) + heightPadding;
+            
+            zoomValue = Mathf.Clamp(newOrthographicSize, minHeight, maxHeight);
+
+            while (completionPercentage < 1)
+            {
+                completionPercentage += Time.deltaTime / timeToMove;
+                var easeOutQuart = 1 - Mathf.Pow(1 - completionPercentage, 4);
+                cameraTransform.position = ClampCameraPosition(Vector3.Lerp(startPoint, targetPoint, easeOutQuart));
+                yield return null;
+            }
         }
 
         private Vector2 GetMidpointBetweenTouches()

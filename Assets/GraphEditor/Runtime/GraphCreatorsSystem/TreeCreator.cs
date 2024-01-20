@@ -65,9 +65,8 @@ namespace GraphEditor
             return monoGraph;
         }
 
-        public bool Iterate(out Rect treeRect)
+        public bool Iterate()
         {
-            treeRect = default;
             if (!treeEnumerator.MoveNext())
                 return false;
             

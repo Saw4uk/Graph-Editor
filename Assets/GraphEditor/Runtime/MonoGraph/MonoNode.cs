@@ -60,19 +60,9 @@ namespace GraphEditor.Runtime
             return new NodeInfo(id, neighborsId, Position);
         }
 
-        public void Select()
-        {
-            NodeSelector.Instance.Add(id);
-        }
-        
-        public void Deselect()
-        {
-            NodeSelector.Instance.Remove(id);
-        }
-
         private void OnMouseDown()
         {
-            NodeSelector.Instance.ChangeSelectionState(id);
+            GraphEditorRoot.Instance.NodeSelector.ChangeSelectionState(id);
             var mousePosition = CameraController.MainCamera.ScreenToWorldPoint(Input.mousePosition);
             offsetPosition = mousePosition - transform.position;
             pivotPoint = mousePosition;
@@ -86,8 +76,8 @@ namespace GraphEditor.Runtime
                 var deltaPosition = transform.position - pivotPoint + offsetPosition;
 
                 Undo.AddActions(
-                    () => NodeSelector.Instance.DragSelectedObjects(-deltaPosition),
-                    () => NodeSelector.Instance.DragSelectedObjects(deltaPosition)
+                    () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(-deltaPosition),
+                    () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(deltaPosition)
                 );
             }
 
@@ -98,7 +88,7 @@ namespace GraphEditor.Runtime
         private void OnMouseDrag()
         {
             var mousePosition = CameraController.MainCamera.ScreenToWorldPoint(Input.mousePosition);
-            NodeSelector.Instance.DragSelectedObjects(mousePosition - offsetPosition - transform.position);
+            GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(mousePosition - offsetPosition - transform.position);
         }
 
         private void OnDestroy()

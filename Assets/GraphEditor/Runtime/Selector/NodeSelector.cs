@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DataStructures;
 using UnityEngine;
 
 namespace GraphEditor.Runtime
 {
     public class NodeSelector : MonoBehaviour
     {
-        public static NodeSelector Instance { get; private set; }
-
         private HashSet<int> selectedObjects = new HashSet<int>();
 
         [SerializeField] private float widthOfMeshSelectedObjects = 0.5f;
@@ -16,18 +15,10 @@ namespace GraphEditor.Runtime
         private Mesh meshSelectedObjects;
 
         public IEnumerable<MonoNode> SelectedNodes =>
-            selectedObjects.Select(nodeId => GraphTool.Instance.Graph.IdToNode[nodeId]).ToArray();
+            selectedObjects.Select(nodeId => GraphEditorRoot.Instance.MonoGraph.IdToNode[nodeId]).ToArray();
 
-        private void Awake()
+        public void Initialize()
         {
-            if (Instance == null)
-                Instance = this;
-            else
-            {
-                Debug.LogError($"Больше чем два {nameof(NodeSelector)} на сцене");
-                Destroy(gameObject);
-            }
-
             meshSelectedObjects = new Mesh();
             GetComponent<MeshFilter>().mesh = meshSelectedObjects;
         }
@@ -140,7 +131,7 @@ namespace GraphEditor.Runtime
 
         private void SelectNode(int nodeId)
         {
-            var node = GraphTool.Instance.Graph.IdToNode[nodeId];
+            var node = GraphEditorRoot.Instance.MonoGraph.IdToNode[nodeId];
             if (node != null)
             {
                 node.SpriteRenderer.color = new Color(0.97f, 0.51f, 0f);
@@ -151,30 +142,14 @@ namespace GraphEditor.Runtime
 
         private void DeselectNode(int nodeId)
         {
-            var node = GraphTool.Instance.Graph.IdToNode[nodeId];
+            var node = GraphEditorRoot.Instance.MonoGraph.IdToNode[nodeId];
             if (node != null)
                 node.SpriteRenderer.color = Color.white;
 
             RedrawBordersSelectedObjects();
         }
 
-        public void DragSelectedObjects(Vector3 deltaPosition)
-        {
-            foreach (var node in SelectedNodes)
-            {
-                if (node == null)
-                    throw new ArgumentNullException();
-
-                node.transform.position += new Vector3(deltaPosition.x, deltaPosition.y);
-
-                foreach (var edge in node.Edges)
-                    edge.Redraw();
-            }
-
-            RedrawBordersSelectedObjects();
-        }
-
-        private void RedrawBordersSelectedObjects()
+        public void RedrawBordersSelectedObjects()
         {
             if (!SelectedNodes.Any())
             {

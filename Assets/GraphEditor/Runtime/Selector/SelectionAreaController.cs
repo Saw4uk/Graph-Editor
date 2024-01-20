@@ -7,8 +7,6 @@ namespace GraphEditor.Runtime
 {
     public class SelectionAreaController : MonoBehaviour
     {
-        public static SelectionAreaController Instance { get; private set; }
-
         public static readonly List<MonoNode> Nodes = new List<MonoNode>();
         private static readonly List<MonoNode> nodesInSelectionArea = new List<MonoNode>();
 
@@ -19,21 +17,8 @@ namespace GraphEditor.Runtime
         private Vector2 startPos;
         private Vector2 endPos;
         private Camera mainCamera;
-
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-            }
-            else
-            {
-                Instance = this;
-                Init();
-            }
-        }
-
-        private void Init()
+        
+        public void Initialize()
         {
             selectionAreaRectTransform = selectionAreaImage.GetComponent<RectTransform>();
             mainCamera = CameraController.MainCamera;
@@ -110,12 +95,12 @@ namespace GraphEditor.Runtime
                 () =>
                 {
                     nodesInSelectionArea.Clear();
-                    NodeSelector.Instance.Clear();
+                    GraphEditorRoot.Instance.NodeSelector.Clear();
                 },
-                () => NodeSelector.Instance.AddMany(selectedUnits)
+                () => GraphEditorRoot.Instance.NodeSelector.AddMany(selectedUnits)
             );
 
-            NodeSelector.Instance.AddMany(selectedUnits);
+            GraphEditorRoot.Instance.NodeSelector.AddMany(selectedUnits);
         }
 
         public void Activate()

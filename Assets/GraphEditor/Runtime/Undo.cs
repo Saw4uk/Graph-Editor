@@ -28,6 +28,12 @@ namespace GraphEditor.Runtime
             });
         }
 
+        public static void Clear()
+        {
+            undo.Clear();
+            redo.Clear();
+        }
+
         private static void RegisterUndoAction(Action action)
         {
             if (action == null)
