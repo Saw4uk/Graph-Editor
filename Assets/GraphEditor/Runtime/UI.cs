@@ -29,13 +29,18 @@ namespace GraphEditor.Runtime
         
         public void ConnectOrDisconnectNodes()
         {
-            var activeNodes = NodeSelector.Instance.SelectedNodes.ToArray();
+            var activeNodes = GraphEditorRoot.Instance.NodeSelector.SelectedNodes.ToArray();
             if (activeNodes.Length < 2)
                 Debug.LogError("Not enough nodes to execute connect or disconnect");
             else if (activeNodes.Length > 2)
                 Debug.LogError("Too many nodes");
             else
-                GraphTool.Instance.ConnectOrDisconnectNodes(activeNodes[0], activeNodes[1]);
+                GraphEditorRoot.Instance.GraphTool.ConnectOrDisconnectNodes(activeNodes[0], activeNodes[1]);
+        }
+        
+        public void RegenerateGraph()
+        {
+            GraphEditorRoot.Instance.RegenerateGraph();
         }
 
         private IEnumerator WaitMouseAndCrateNode()
@@ -45,7 +50,7 @@ namespace GraphEditor.Runtime
                 yield return null;
 
             IsWaitingMouseClick = false;
-            GraphTool.Instance.CreateNode(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+            GraphEditorRoot.Instance.GraphTool.CreateNode(CameraController.MainCamera.ScreenToWorldPoint(Input.mousePosition));
         }
     }
 }

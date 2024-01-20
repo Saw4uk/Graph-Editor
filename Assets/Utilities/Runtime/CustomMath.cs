@@ -149,4 +149,10 @@ public static class CustomMath
         var determinantY = xCoef.x * freeCoef.y - xCoef.y * freeCoef.x;
         return new Vector2(determinantX / determinant, determinantY / determinant);
     }
+
+    public static (int, int) CreateRandomRange(int min, int max)
+    {
+        var randomCount = UnityEngine.Random.Range(min, max);
+        return (randomCount, randomCount + UnityEngine.Random.Range(Mathf.Max(min - randomCount, 0), max - randomCount));
+    }
 }

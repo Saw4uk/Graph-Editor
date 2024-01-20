@@ -27,7 +27,7 @@ namespace GraphEditor
         {
             if (startIterate)
             {
-                TreeCreator.Iterate(out var rect);
+                TreeCreator.Iterate();
                 graph.RedrawAllEdges();
             }
         }
@@ -46,7 +46,7 @@ namespace GraphEditor
             
             if (GUILayout.Button("SingleIterate"))
             {
-                TreeCreator.Iterate(out var rect);
+                TreeCreator.Iterate();
                 graph.RedrawAllEdges();
             }
             

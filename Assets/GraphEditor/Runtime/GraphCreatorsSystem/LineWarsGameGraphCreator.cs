@@ -53,6 +53,11 @@ namespace GraphEditor
             var undirectedVertexGraph = GenerateConnectiveGraph();
             return CreateInstanceOfGraph(undirectedVertexGraph);
         }
+        
+        public MonoGraph Restart(UndirectedVertexGraph undirectedVertexGraph)
+        {
+            return CreateInstanceOfGraph(undirectedVertexGraph);
+        }
 
         public void Iterate()
         {

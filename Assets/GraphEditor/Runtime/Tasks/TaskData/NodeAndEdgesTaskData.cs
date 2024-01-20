@@ -34,7 +34,7 @@ namespace GraphEditor.Runtime
             var nodeCount = Random.Range(minNodeCount, maxNodeCount);
             var edgeToNodeRatio = Random.Range(minEdgeToNodeRatio, maxEdgeToNodeRatio);
             var edgeCount = (int)(nodeCount * edgeToNodeRatio);
-            return new NodesAndEdgesTask(nodeCount, edgeCount);
+            return new NodesAndEdgesTask(nodeCount, edgeCount, taskInfo);
         }
     }
 }
