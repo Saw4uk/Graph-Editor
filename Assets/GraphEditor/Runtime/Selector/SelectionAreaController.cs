@@ -77,7 +77,7 @@ namespace GraphEditor.Runtime
             nodesInSelectionArea.Clear();
             foreach (var unit in Nodes)
             {
-                var bounds = unit.SpriteRenderer.bounds;
+                var bounds = unit.Bounds;
                 var unitLeftBottomCorner = (Vector2)mainCamera.WorldToScreenPoint(bounds.min);
                 var unitRightTopCorner = (Vector2)mainCamera.WorldToScreenPoint(bounds.max);
 

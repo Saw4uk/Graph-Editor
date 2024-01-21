@@ -24,7 +24,7 @@ namespace GraphEditor.Runtime
         public IEnumerable<MonoEdge> Edges => edges;
         public IEnumerable<MonoNode> Neighbors => GetNeighbors();
         public int EdgesCount => edges.Count;
-        public SpriteRenderer SpriteRenderer => spriteRenderer;
+        public Bounds Bounds => spriteRenderer.bounds;
 
 
         public void Initialize(int index)
@@ -65,13 +65,13 @@ namespace GraphEditor.Runtime
 
         public void Select()
         {
-            SpriteRenderer.sprite = selectedSprite;
+            spriteRenderer.sprite = selectedSprite;
         }
 
 
         public void Deselect()
         {
-            SpriteRenderer.sprite = defaultSprite;
+            spriteRenderer.sprite = defaultSprite;
         }
 
         private void OnMouseDown()

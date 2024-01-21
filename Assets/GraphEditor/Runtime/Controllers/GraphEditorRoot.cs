@@ -63,6 +63,13 @@ namespace GraphEditor
             GraphTool.Graph = MonoGraph;
         }
 
+        public MonoNode GetRootNode()
+        {
+            if (CurrentTask.TaskInfo.GraphGenerator is TreeGraphGenerator treeGraphGenerator)
+                return treeGraphGenerator.RootNode;
+            return null;
+        }
+
         private void ReturnInteraction()
         {
             nodeSelector.isEditable = IsEditable;

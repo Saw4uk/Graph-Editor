@@ -168,8 +168,8 @@ namespace GraphEditor.Runtime
 
             foreach (var node in SelectedNodes)
             {
-                leftBottomCorner = Vector2.Min(leftBottomCorner, node.SpriteRenderer.bounds.min);
-                rightTopCorner = Vector2.Max(rightTopCorner, node.SpriteRenderer.bounds.max);
+                leftBottomCorner = Vector2.Min(leftBottomCorner, node.Bounds.min);
+                rightTopCorner = Vector2.Max(rightTopCorner, node.Bounds.max);
             }
 
             var corners = new[]

@@ -17,13 +17,16 @@ namespace GraphEditor
 
         private MonoBehaviour coroutineObj;
         private MonoGraph monoGraph;
+        private TreeCreator treeCreator;
+
+        public MonoNode RootNode => treeCreator.RootNode;
 
         public override MonoGraph Generate()
         {
             var randomLayerCount = Random.Range(minLayersCount, maxLayersCount);
             var randomHeirsRange = CustomMath.CreateRandomRange(minHeirsCount, maxHeirsCount);
 
-            var treeCreator = GraphEditorRoot.Instance.TreeCreator;
+            treeCreator = GraphEditorRoot.Instance.TreeCreator;
             var tree = Tree.CreateRandomTree(randomLayerCount, new Vector2Int(randomHeirsRange.Item1, randomHeirsRange.Item2));
             monoGraph = treeCreator.Restart(tree, Vector2.zero);
             monoGraph.name = "Tree Graph";
