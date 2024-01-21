@@ -24,14 +24,16 @@ namespace GraphEditor.Runtime
         public IEnumerable<MonoEdge> Edges => edges;
         public IEnumerable<MonoNode> Neighbors => GetNeighbors();
         public int EdgesCount => edges.Count;
-        public SpriteRenderer SpriteRenderer => spriteRenderer;
+        public Bounds Bounds => spriteRenderer.bounds;
 
 
         public void Initialize(int index)
         {
             id = index;
             edges = new List<MonoEdge>();
-            SelectionAreaController.Nodes.Add(this);
+            
+            if (GraphEditorRoot.Instance.IsEditable)
+                SelectionAreaController.Nodes.Add(this);
         }
 
         public void AddEdge(MonoEdge monoEdge)
@@ -63,13 +65,13 @@ namespace GraphEditor.Runtime
 
         public void Select()
         {
-            SpriteRenderer.sprite = selectedSprite;
+            spriteRenderer.sprite = selectedSprite;
         }
 
 
         public void Deselect()
         {
-            SpriteRenderer.sprite = defaultSprite;
+            spriteRenderer.sprite = defaultSprite;
         }
 
         private void OnMouseDown()
@@ -87,10 +89,11 @@ namespace GraphEditor.Runtime
             {
                 var deltaPosition = transform.position - pivotPoint + offsetPosition;
 
-                Undo.AddActions(
-                    () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(-deltaPosition),
-                    () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(deltaPosition)
-                );
+                if (GraphEditorRoot.Instance.GraphTool.isEditable)
+                    Undo.AddActions(
+                        () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(-deltaPosition),
+                        () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(deltaPosition)
+                    );
             }
 
             offsetPosition = Vector2.zero;
@@ -105,7 +108,8 @@ namespace GraphEditor.Runtime
 
         private void OnDestroy()
         {
-            SelectionAreaController.Nodes.Remove(this);
+            if (GraphEditorRoot.Instance != null && GraphEditorRoot.Instance.IsEditable)
+                SelectionAreaController.Nodes.Remove(this);
         }
     }
 }

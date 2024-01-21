@@ -39,7 +39,9 @@ namespace GraphEditor
             
             monoGraph.name = "Random Graph";
             
-            coroutineObj = new GameObject().AddComponent<RoutineObject>();
+            if (coroutineObj == null)
+                coroutineObj = new GameObject().AddComponent<RoutineObject>();
+            coroutineObj.StopAllCoroutines();
             coroutineObj.StartCoroutine(IterateGraph());
             
             return monoGraph;
@@ -68,7 +70,7 @@ namespace GraphEditor
             }
 
             FinishGenerate();
-            Destroy(coroutineObj);
+            Destroy(coroutineObj.gameObject);
         }
     }
 }

@@ -33,6 +33,8 @@ namespace GraphEditor
         private int curEdgeId;
         private MonoNode rootNode;
 
+        public MonoNode RootNode => rootNode;
+
         public MonoGraph Restart()
         {
             var tree = Tree.CreateRandomTree(layersCount, heirsRange);

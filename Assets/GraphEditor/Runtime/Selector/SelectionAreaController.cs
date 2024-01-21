@@ -17,6 +17,7 @@ namespace GraphEditor.Runtime
         private Vector2 startPos;
         private Vector2 endPos;
         private Camera mainCamera;
+        public bool isEditable { get; set; }
         
         public void Initialize()
         {
@@ -27,7 +28,9 @@ namespace GraphEditor.Runtime
 
         private void Update()
         {
-            if (Input.GetMouseButtonDown(0) && !CameraController.PointerIsOverAnyObject() &&
+            if (!isEditable) return;
+            
+            if (!draw && Input.GetMouseButtonDown(0) && !CameraController.PointerIsOverAnyObject() &&
                 !CameraController.PointerIsOverUI())
             {
                 startPos = Input.mousePosition;
@@ -35,7 +38,7 @@ namespace GraphEditor.Runtime
                 draw = true;
             }
 
-            if (Input.GetMouseButtonUp(0))
+            if (draw && Input.GetMouseButtonUp(0))
             {
                 draw = false;
                 Select();
@@ -71,9 +74,10 @@ namespace GraphEditor.Runtime
 
         private void SelectNodesInArea(Vector2 areaLeftBottomCorner, Vector2 areaRightTopCorner)
         {
+            nodesInSelectionArea.Clear();
             foreach (var unit in Nodes)
             {
-                var bounds = unit.SpriteRenderer.bounds;
+                var bounds = unit.Bounds;
                 var unitLeftBottomCorner = (Vector2)mainCamera.WorldToScreenPoint(bounds.min);
                 var unitRightTopCorner = (Vector2)mainCamera.WorldToScreenPoint(bounds.max);
 

@@ -17,6 +17,8 @@ namespace GraphEditor.Runtime
         public IEnumerable<MonoNode> SelectedNodes =>
             selectedObjects.Select(nodeId => GraphEditorRoot.Instance.MonoGraph.IdToNode[nodeId]).ToArray();
 
+        public bool isEditable { get; set; }
+
         public void Initialize()
         {
             meshSelectedObjects = new Mesh();
@@ -25,7 +27,7 @@ namespace GraphEditor.Runtime
 
         private void Update()
         {
-            if (Input.GetMouseButtonDown(0) && !CameraController.PointerIsOverAnyObject() &&
+            if (isEditable && Input.GetMouseButtonDown(0) && !CameraController.PointerIsOverAnyObject() &&
                 !CameraController.PointerIsOverUI() && selectedObjects.Count > 0 &&
                 !UI.Instance.IsWaitingMouseClick)
             {
@@ -41,6 +43,8 @@ namespace GraphEditor.Runtime
 
         public void ChangeSelectionState(int nodeId)
         {
+            if (!isEditable) return;
+            
             if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                 if (selectedObjects.Contains(nodeId))
                 {
@@ -93,6 +97,8 @@ namespace GraphEditor.Runtime
 
         public void Add(int nodeId)
         {
+            if (!isEditable) return;
+            
             if (selectedObjects.Contains(nodeId))
             {
                 //Debug.LogError($"The node with ID {nodeId} has already been added to selectedObjects");
@@ -106,6 +112,8 @@ namespace GraphEditor.Runtime
 
         public void Remove(int nodeId)
         {
+            if (!isEditable) return;
+            
             if (!selectedObjects.Remove(nodeId))
             {
                 //Debug.LogError($"SelectedObjects does not have a node with ID {nodeId}");
@@ -160,8 +168,8 @@ namespace GraphEditor.Runtime
 
             foreach (var node in SelectedNodes)
             {
-                leftBottomCorner = Vector2.Min(leftBottomCorner, node.SpriteRenderer.bounds.min);
-                rightTopCorner = Vector2.Max(rightTopCorner, node.SpriteRenderer.bounds.max);
+                leftBottomCorner = Vector2.Min(leftBottomCorner, node.Bounds.min);
+                rightTopCorner = Vector2.Max(rightTopCorner, node.Bounds.max);
             }
 
             var corners = new[]
