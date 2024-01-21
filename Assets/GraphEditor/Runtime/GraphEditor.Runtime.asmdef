@@ -1,10 +1,10 @@
 {
     "name": "GraphEditor.Runtime",
     "references": [
-        "GUID:403d8ee4abf1e694089c3e8d3edff032",
         "GUID:343deaaf83e0cee4ca978e7df0b80d21",
         "GUID:2bafac87e7f4b9b418d9448d219b01ab",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+        "GUID:6055be8ebefd69e48b49212b09b47b2f",
+        "GUID:791ce0e7e963336498c4be884a25c196"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

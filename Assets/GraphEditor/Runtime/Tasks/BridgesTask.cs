@@ -6,7 +6,7 @@ namespace GraphEditor.Runtime
     {
         private int bridgesCount;
 
-        public BridgesTask(int bridgesCount)
+        public BridgesTask(int bridgesCount, TaskInfo taskInfo) : base(taskInfo)
         {
             this.bridgesCount = bridgesCount;
         }

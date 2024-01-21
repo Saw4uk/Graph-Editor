@@ -7,27 +7,49 @@ namespace GraphEditor.Runtime
 {
     public class TaskController : MonoBehaviour
     {
-        [SerializeField] private TaskData taskData;
         [SerializeField] private string taskTitleText = "Необходимо построить дерево удовлетворяющее требованиям:";
         [SerializeField] private TMP_Text titleField;
-        [SerializeField] private TMP_Text descriptionField;
         [SerializeField] private Button checkButton;
+        [SerializeField] private GameObject taskContainer;
+        [SerializeField] private QuestionDrawer questionDrawerPrefab;
+        [SerializeField] private TMP_Text descriptionFieldPrefab;
 
         private ITask currentTask;
 
-        void Awake()
+        public void Initialize(ITask taskData)
         {
-            if (taskData == null)
-                throw new ArgumentException("No Task Data!");
-            currentTask = taskData.GetNewTask();
+            currentTask = taskData;
+
+            if (currentTask is QuestionTask questionTask)
+            {
+                foreach (var question in questionTask.Questions)
+                {
+                    var questionDrawer = Instantiate(questionDrawerPrefab, taskContainer.transform);
+                    questionDrawer.DrawQuestion(question);
+                }
+            }
+            else
+            {
+                Instantiate(descriptionFieldPrefab, taskContainer.transform);
+                descriptionFieldPrefab.text = currentTask.GetDescription();
+            }
+            
             titleField.text = taskTitleText;
-            descriptionField.text = currentTask.GetDescription();
             checkButton.onClick.AddListener(CheckTaskOnButtonClick);
         }
 
         private void CheckTaskOnButtonClick()
         {
-            Debug.Log(currentTask.CheckTask(GraphTool.Instance.Graph) ? "Верно" : "Неверно");
+            if (currentTask is QuestionTask)
+            {
+                var questionDrawers = taskContainer.GetComponentsInChildren<QuestionDrawer>();
+                foreach (var questionDrawer in questionDrawers)
+                {
+                    questionDrawer.SetInputDataInQuestion();
+                }
+            }
+            
+            Debug.Log(currentTask.CheckTask(GraphEditorRoot.Instance.MonoGraph) ? "Верно" : "Неверно");
         }
     }
 }

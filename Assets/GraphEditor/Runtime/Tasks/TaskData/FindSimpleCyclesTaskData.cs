@@ -20,7 +20,7 @@ namespace GraphEditor.Runtime
         public override ITask GetNewTask()
         {
             var simpleCyclesCount = UnityEngine.Random.Range(minSimpleCyclesCount, maxSimpleCyclesCount);
-            return new FindSimpleCyclesTask(simpleCyclesCount);
+            return new FindSimpleCyclesTask(simpleCyclesCount, taskInfo);
         }
     }
 }

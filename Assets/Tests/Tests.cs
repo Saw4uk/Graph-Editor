@@ -21,7 +21,7 @@ public class Tests
             {
                 foreach (var vert in node.NeighboursVertex)
                 {
-                    Assert.IsTrue(randomGraph.AsReadOnlyNodesDictionary[vert].NeighboursVertex.Contains(node.Vertex));
+                    Assert.IsTrue(randomGraph.AsReadOnlyNodesDictionary[vert].NeighboursVertex.Contains(node.Value));
                 }
             }
         }

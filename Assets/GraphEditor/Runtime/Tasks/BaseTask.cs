@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
 using GraphEditor.Attributes;
-using UnityEngine;
 
 namespace GraphEditor.Runtime
 {
@@ -18,6 +17,10 @@ namespace GraphEditor.Runtime
                 .ToArray();
         }
 
+        protected BaseTask(TaskInfo taskInfo) : base(taskInfo)
+        {
+        }
+        
         public override string GetDescription()
         {
             var stringProperties = properties.Select(property =>
@@ -28,7 +31,15 @@ namespace GraphEditor.Runtime
 
     public abstract class BaseTask : ITask
     {
+        public TaskInfo TaskInfo { get; }
+
+        protected BaseTask(TaskInfo taskInfo)
+        {
+            TaskInfo = taskInfo;
+        }
+        
         public abstract string GetDescription();
+
         public abstract bool CheckTask(MonoGraph monoGraph);
     }
 }

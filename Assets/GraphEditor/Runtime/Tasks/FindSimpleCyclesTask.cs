@@ -6,7 +6,7 @@ namespace GraphEditor.Runtime
     {
         private int simpleCyclesCount;
 
-        public FindSimpleCyclesTask(int simpleCyclesCount)
+        public FindSimpleCyclesTask(int simpleCyclesCount, TaskInfo taskInfo) : base(taskInfo)
         {
             this.simpleCyclesCount = simpleCyclesCount;
         }
