@@ -15,9 +15,9 @@ namespace GraphEditor
             this.questions = questions;
         }
     
-        public override bool CheckTask(MonoGraph monoGraph)
+        public override float CheckTask(MonoGraph monoGraph)
         {
-            return questions.All(question => question.Check(monoGraph));
+            return GetMark(questions.Select(x => x.Check(monoGraph)));
         }
     }
 }

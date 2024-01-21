@@ -141,9 +141,7 @@ namespace GraphEditor.Runtime
         {
             var node = GraphEditorRoot.Instance.MonoGraph.IdToNode[nodeId];
             if (node != null)
-            {
-                node.SpriteRenderer.color = new Color(0.97f, 0.51f, 0f);
-            }
+                node.Select();
 
             RedrawBordersSelectedObjects();
         }
@@ -152,7 +150,7 @@ namespace GraphEditor.Runtime
         {
             var node = GraphEditorRoot.Instance.MonoGraph.IdToNode[nodeId];
             if (node != null)
-                node.SpriteRenderer.color = Color.white;
+                node.Deselect();
 
             RedrawBordersSelectedObjects();
         }

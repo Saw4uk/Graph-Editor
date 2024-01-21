@@ -1,4 +1,5 @@
-﻿using GraphEditor.Attributes;
+﻿using System.Collections.Generic;
+using GraphEditor.Attributes;
 
 namespace GraphEditor.Runtime
 {
@@ -11,14 +12,14 @@ namespace GraphEditor.Runtime
             this.simpleCyclesCount = simpleCyclesCount;
         }
 
-        //[DisplayName("Количество циклов")]
+        [DisplayName("Количество циклов")]
         public int SimpleCyclesCount => simpleCyclesCount;
 
-        public override bool CheckTask(MonoGraph monoGraph)
+        public override float CheckTask(MonoGraph monoGraph)
         {
             var adjacencyGraph = AdjacencyMatrixGraph.FromMonoGraph(monoGraph);
             var result = adjacencyGraph.FindNumberOfSimpleCycles();
-            return result == simpleCyclesCount;
+            return GetMark(new List<bool>{result == simpleCyclesCount});
         }
     }
 }

@@ -10,6 +10,7 @@ namespace GraphEditor.Runtime
         [SerializeField] private int id;
 
         [SerializeField] private Sprite defaultSprite;
+        [SerializeField] private Sprite selectedSprite;
         [SerializeField] private List<MonoEdge> edges;
 
         [field: Header("References")] [SerializeField]
@@ -60,6 +61,17 @@ namespace GraphEditor.Runtime
         {
             var neighborsId = GetNeighbors().Select(neighbor => neighbor.id).ToArray();
             return new NodeInfo(id, neighborsId, Position);
+        }
+
+        public void Select()
+        {
+            SpriteRenderer.sprite = selectedSprite;
+        }
+
+
+        public void Deselect()
+        {
+            SpriteRenderer.sprite = defaultSprite;
         }
 
         private void OnMouseDown()

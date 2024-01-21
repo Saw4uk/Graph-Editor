@@ -4,6 +4,6 @@
     {
         string GetDescription();
         TaskInfo TaskInfo { get; }
-        bool CheckTask(MonoGraph monoGraph);
+        float CheckTask(MonoGraph monoGraph);
     }
 }

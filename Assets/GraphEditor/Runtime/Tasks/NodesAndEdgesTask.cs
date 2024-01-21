@@ -1,4 +1,5 @@
-﻿using GraphEditor.Attributes;
+﻿using System.Collections.Generic;
+using GraphEditor.Attributes;
 
 namespace GraphEditor.Runtime
 {
@@ -19,10 +20,9 @@ namespace GraphEditor.Runtime
         [DisplayName("Количество ребер")] 
         public int EdgeCount => edgeCount;
 
-        public override bool CheckTask(MonoGraph monoGraph)
+        public override float CheckTask(MonoGraph monoGraph)
         {
-            return monoGraph.Edges.Count == edgeCount && 
-                   monoGraph.Nodes.Count == nodeCount;
+            return GetMark(new List<bool>{monoGraph.Edges.Count == edgeCount, monoGraph.Nodes.Count == nodeCount } );
         }
     }
 }
