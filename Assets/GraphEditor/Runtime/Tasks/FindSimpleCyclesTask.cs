@@ -11,7 +11,7 @@ namespace GraphEditor.Runtime
             this.simpleCyclesCount = simpleCyclesCount;
         }
 
-        //[DisplayName("Количество циклов")]
+        [DisplayName("Количество циклов")]
         public int SimpleCyclesCount => simpleCyclesCount;
 
         public override bool CheckTask(MonoGraph monoGraph)

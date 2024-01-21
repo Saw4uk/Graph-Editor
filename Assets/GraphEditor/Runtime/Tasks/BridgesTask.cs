@@ -11,7 +11,7 @@ namespace GraphEditor.Runtime
             this.bridgesCount = bridgesCount;
         }
 
-        //[DisplayName("Количество мостов")]
+        [DisplayName("Количество мостов")]
         public int BridgesCount => bridgesCount;
         
         public override bool CheckTask(MonoGraph monoGraph)
