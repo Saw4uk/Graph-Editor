@@ -13,6 +13,7 @@ namespace GraphEditor.Runtime
         [SerializeField] private GameObject taskContainer;
         [SerializeField] private QuestionDrawer questionDrawerPrefab;
         [SerializeField] private TMP_Text descriptionFieldPrefab;
+        [SerializeField] private FinalWindow finalWindow;
 
         private ITask currentTask;
 
@@ -48,8 +49,10 @@ namespace GraphEditor.Runtime
                     questionDrawer.SetInputDataInQuestion();
                 }
             }
+
+            var result = currentTask.CheckTask(GraphEditorRoot.Instance.MonoGraph);
             
-            Debug.Log(currentTask.CheckTask(GraphEditorRoot.Instance.MonoGraph) ? "Верно" : "Неверно");
+            finalWindow.ShowWindow(result);
         }
     }
 }

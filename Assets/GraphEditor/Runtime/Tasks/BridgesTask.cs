@@ -1,4 +1,5 @@
-﻿using GraphEditor.Attributes;
+﻿using System.Collections.Generic;
+using GraphEditor.Attributes;
 
 namespace GraphEditor.Runtime
 {
@@ -14,7 +15,7 @@ namespace GraphEditor.Runtime
         [DisplayName("Количество мостов")]
         public int BridgesCount => bridgesCount;
         
-        public override bool CheckTask(MonoGraph monoGraph)
+        public override float CheckTask(MonoGraph monoGraph)
         {
             var graph = new UndirectedVertexGraph();
             foreach(var node in monoGraph.Nodes)
@@ -29,7 +30,7 @@ namespace GraphEditor.Runtime
 
             if(!graph.IsConnectedGraph())
             {
-                return false;
+                return 0;
             }
 
             var currentBridgesCount = 0;
@@ -43,7 +44,7 @@ namespace GraphEditor.Runtime
                 graph.Undo();
             }
 
-            return bridgesCount == currentBridgesCount;
+            return GetMark(new List<bool>{ bridgesCount == currentBridgesCount } );
         }
     }
 }
