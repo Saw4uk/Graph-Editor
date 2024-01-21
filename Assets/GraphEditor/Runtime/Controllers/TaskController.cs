@@ -7,7 +7,7 @@ namespace GraphEditor.Runtime
 {
     public class TaskController : MonoBehaviour
     {
-        [SerializeField] private string taskTitleText = "Необходимо построить дерево удовлетворяющее требованиям:";
+        private string taskTitleText = "Ваш граф соответствует критериям:";
         [SerializeField] private TMP_Text titleField;
         [SerializeField] private Button checkButton;
         [SerializeField] private GameObject taskContainer;
@@ -19,6 +19,14 @@ namespace GraphEditor.Runtime
 
         public void Initialize(ITask taskData)
         {
+            var questionDrawers = taskContainer.GetComponentsInChildren<QuestionDrawer>();
+
+            foreach (var questionDrawer in questionDrawers)
+            {
+                Destroy(questionDrawer.gameObject);
+            }
+            
+            
             currentTask = taskData;
 
             if (currentTask is QuestionTask questionTask)
@@ -35,7 +43,7 @@ namespace GraphEditor.Runtime
                 descriptionFieldPrefab.text = currentTask.GetDescription();
             }
             
-            titleField.text = taskTitleText;
+            titleField.text = currentTask.TaskInfo.Description;
             checkButton.onClick.AddListener(CheckTaskOnButtonClick);
         }
 

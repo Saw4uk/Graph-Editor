@@ -31,12 +31,15 @@ namespace GraphEditor
 
         private void Start()
         {
-            StartGraphEditor();
+            //StartGraphEditor();
         }
 
-        private void StartGraphEditor()
+
+        public void StartGraphEditor(TaskData taskData = null)
         {
-            CurrentTask = taskData.GetNewTask();
+            if(MonoGraph != null)
+                Destroy(MonoGraph.gameObject);
+            CurrentTask = taskData != null ? taskData.GetNewTask() : this.taskData.GetNewTask();
             taskController.Initialize(CurrentTask);
 
             MonoGraph = CurrentTask.TaskInfo.GraphGenerator.Generate();

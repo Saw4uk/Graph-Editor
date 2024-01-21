@@ -43,8 +43,11 @@ namespace GraphEditor.Runtime
 
         public static Camera MainCamera => Camera.main;
 
+        private bool isInitialized;
+        
         public void Initialize()
         {
+            isInitialized = true;
             if (MainCamera != null)
                 cameraTransform = MainCamera.GetComponent<Transform>();
 
@@ -55,6 +58,8 @@ namespace GraphEditor.Runtime
 
         private void Update()
         {
+            if(!isInitialized)
+                return;
             if ((Input.GetMouseButtonDown(2) || Input.touches.Any(touch => touch.phase == TouchPhase.Began)) &&
                 !PointerIsOverUI() && !PointerIsOverLayer("Graph") && !UI.Instance.IsWaitingMouseClick)
             {
