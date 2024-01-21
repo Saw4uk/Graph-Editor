@@ -20,9 +20,6 @@ namespace GraphEditor
 
         public override MonoGraph Generate()
         {
-            foreach (var monoGraph in FindObjectsOfType<MonoGraph>())
-                Destroy(monoGraph);
-
             var randomLayerCount = Random.Range(minLayersCount, maxLayersCount);
             var randomHeirsRange = CustomMath.CreateRandomRange(minHeirsCount, maxHeirsCount);
 
@@ -31,9 +28,11 @@ namespace GraphEditor
             monoGraph = treeCreator.Restart(tree, Vector2.zero);
             monoGraph.name = "Tree Graph";
 
-            coroutineObj = new GameObject().AddComponent<RoutineObject>();
+            if (coroutineObj == null)
+                coroutineObj = new GameObject().AddComponent<RoutineObject>();
+            coroutineObj.StopAllCoroutines();
             coroutineObj.StartCoroutine(RoutineGenerate(treeCreator));
-
+            
             return monoGraph;
         }
 
@@ -51,7 +50,7 @@ namespace GraphEditor
             }
 
             FinishGenerate();
-            Destroy(coroutineObj);
+            Destroy(coroutineObj.gameObject);
         }
     }
 }
