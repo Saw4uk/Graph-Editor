@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using GraphEditor.Attributes;
 
 namespace GraphEditor.Runtime
@@ -9,6 +10,7 @@ namespace GraphEditor.Runtime
     public abstract class BaseTask<T> : BaseTask
         where T : BaseTask<T>
     {
+        private static DisplayNameAttribute[] displayNameAttributes;
         private static readonly PropertyInfo[] properties;
 
         static BaseTask()
@@ -16,6 +18,9 @@ namespace GraphEditor.Runtime
             properties = typeof(T)
                 .GetProperties(BindingFlags.Instance | BindingFlags.Public)
                 .Where(property => property.GetCustomAttribute<DisplayNameAttribute>() != null)
+                .ToArray();
+            displayNameAttributes = properties
+                .Select(property => property.GetCustomAttribute<DisplayNameAttribute>())
                 .ToArray();
         }
 
@@ -25,9 +30,27 @@ namespace GraphEditor.Runtime
         
         public override string GetDescription()
         {
-            var stringProperties = properties.Select(property =>
-                $"{property.GetCustomAttribute<DisplayNameAttribute>().DisplayName} - {property.GetValue(this)}");
-            return string.Join("\n", stringProperties);
+            // var stringProperties = properties.Select(property =>
+            //    $"{property.GetCustomAttribute<DisplayNameAttribute>().DisplayName} - {property.GetValue(this)}");
+
+            var stringProperties = new StringBuilder();
+            for(var i = 0; i < properties.Length; i++)
+            {
+                var property = properties[i];
+                var attribute = displayNameAttributes[i];
+                if (property.GetType() == typeof(bool))
+                {
+                    var result = (bool)property.GetValue(this) ? "Да" : "Нет";
+                    stringProperties.Append($"{attribute.DisplayName} - {result}");
+
+                }
+                else
+                    stringProperties.Append(
+                        $"{property.GetCustomAttribute<DisplayNameAttribute>().DisplayName} - {property.GetValue(this)}");
+                if (i != properties.Length - 1)
+                    stringProperties.Append("\n");
+            }
+            return stringProperties.ToString();
         }
     }
 
@@ -41,6 +64,9 @@ namespace GraphEditor.Runtime
             var coefficient = (float)conditions.Count(x => x) / conditions.Count();
             return (float)Math.Round(MaxMark * coefficient, 1);
         }
+
+        public static float GetMark(params bool[] conditions)
+            => GetMark(conditions);
         
         public TaskInfo TaskInfo { get; }
 
