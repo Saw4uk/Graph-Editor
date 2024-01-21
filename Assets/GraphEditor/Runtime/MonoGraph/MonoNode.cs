@@ -30,7 +30,9 @@ namespace GraphEditor.Runtime
         {
             id = index;
             edges = new List<MonoEdge>();
-            SelectionAreaController.Nodes.Add(this);
+            
+            if (GraphEditorRoot.Instance.IsEditable)
+                SelectionAreaController.Nodes.Add(this);
         }
 
         public void AddEdge(MonoEdge monoEdge)
@@ -75,10 +77,11 @@ namespace GraphEditor.Runtime
             {
                 var deltaPosition = transform.position - pivotPoint + offsetPosition;
 
-                Undo.AddActions(
-                    () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(-deltaPosition),
-                    () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(deltaPosition)
-                );
+                if (GraphEditorRoot.Instance.GraphTool.isEditable)
+                    Undo.AddActions(
+                        () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(-deltaPosition),
+                        () => GraphEditorRoot.Instance.GraphTool.MoveSelectedNodes(deltaPosition)
+                    );
             }
 
             offsetPosition = Vector2.zero;
@@ -93,7 +96,8 @@ namespace GraphEditor.Runtime
 
         private void OnDestroy()
         {
-            SelectionAreaController.Nodes.Remove(this);
+            if (GraphEditorRoot.Instance != null && GraphEditorRoot.Instance.IsEditable)
+                SelectionAreaController.Nodes.Remove(this);
         }
     }
 }

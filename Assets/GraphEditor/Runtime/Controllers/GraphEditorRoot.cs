@@ -19,18 +19,15 @@ namespace GraphEditor
         [SerializeField] private TreeCreator treeCreator;
         
         public GraphTool GraphTool => graphTool;
-
         public CameraController CameraController => cameraController;
-
         public NodeSelector NodeSelector => nodeSelector;
-
         public SelectionAreaController SelectionAreaController => selectionAreaController;
-
         public TaskController TaskController => taskController;
         public LineWarsGameGraphCreator RandomGraphCreator => randomGraphCreator;
         public TreeCreator TreeCreator => treeCreator;
         public MonoGraph MonoGraph { get; set; }
         public ITask CurrentTask { get; set; }
+        public bool IsEditable => CurrentTask.TaskInfo.IsEditable;
 
         private void Start()
         {
@@ -49,15 +46,35 @@ namespace GraphEditor
             nodeSelector.Initialize();
             selectionAreaController.Initialize();
             graphTool.Initialize(MonoGraph, NodeSelector);
+
+            DisableInteraction();
+            
+            CurrentTask.TaskInfo.GraphGenerator.GenerateIsFinished += ReturnInteraction;
         }
 
         public void RegenerateGraph()
         {
             Destroy(MonoGraph.gameObject);
             Undo.Clear();
-            
+            nodeSelector.Clear();
+            DisableInteraction();
+
             MonoGraph = CurrentTask.TaskInfo.GraphGenerator.Generate();
             GraphTool.Graph = MonoGraph;
+        }
+
+        private void ReturnInteraction()
+        {
+            nodeSelector.isEditable = IsEditable;
+            selectionAreaController.isEditable = IsEditable;
+            graphTool.isEditable = IsEditable;
+        }
+
+        private void DisableInteraction()
+        {
+            nodeSelector.isEditable = false;
+            selectionAreaController.isEditable = false;
+            graphTool.isEditable = false;
         }
     }
 }

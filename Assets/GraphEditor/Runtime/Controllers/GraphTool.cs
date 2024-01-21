@@ -26,6 +26,8 @@ namespace GraphEditor.Runtime
 
         private void Update()
         {
+            if (!isEditable) return;
+            
             if (Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Delete))
                 DeleteSelectedNodes();
 
@@ -46,6 +48,8 @@ namespace GraphEditor.Runtime
 
         public MonoNode CreateNode(Vector2 position)
         {
+            if (!isEditable) return null;
+            
             var newNode = _CreateNode(position);
 
             Undo.AddActions(
@@ -86,6 +90,8 @@ namespace GraphEditor.Runtime
 
         public bool DeleteNode(int nodeId)
         {
+            if (!isEditable) return false;
+            
             var nodeInfo = GetNodeById(nodeId).GetNodeInfo();
             var removed = _DeleteNode(nodeInfo.id);
 
@@ -130,6 +136,8 @@ namespace GraphEditor.Runtime
 
         public void DeleteSelectedNodes()
         {
+            if (!isEditable) return;
+            
             var nodeDeletedNodeInfos = selector.SelectedNodes.Select(node => node.GetNodeInfo()).ToList();
 
             if (!nodeDeletedNodeInfos.Any())
@@ -196,6 +204,8 @@ namespace GraphEditor.Runtime
 
         public void ConnectOrDisconnectNodes(MonoNode firstMonoNode, MonoNode secondMonoNode)
         {
+            if (!isEditable) return;
+            
             var intersect = GetIntersectEdges(firstMonoNode, secondMonoNode);
             if (intersect.Count == 0)
                 ConnectNodes(firstMonoNode.Id, secondMonoNode.Id);
@@ -205,6 +215,8 @@ namespace GraphEditor.Runtime
 
         public MonoEdge ConnectNodes(int firstNodeId, int secondNodeId)
         {
+            if (!isEditable) return null;
+            
             var edge = _ConnectNodes(firstNodeId, secondNodeId);
 
             Undo.AddActions(
@@ -235,6 +247,8 @@ namespace GraphEditor.Runtime
 
         public void DisconnectNodes(int firstNodeId, int secondNodeId)
         {
+            if (!isEditable) return;
+            
             _DisconnectNodes(firstNodeId, secondNodeId);
 
             Undo.AddActions(
@@ -266,17 +280,17 @@ namespace GraphEditor.Runtime
         
         public void MoveSelectedNodes(Vector3 deltaPosition)
         {
+            if (!isEditable) return;
+            
             foreach (var node in selector.SelectedNodes)
             {
                 if (node == null)
                     throw new ArgumentNullException();
 
                 node.transform.position += new Vector3(deltaPosition.x, deltaPosition.y);
-
-                foreach (var edge in node.Edges)
-                    edge.Redraw();
             }
-
+            
+            graph.RedrawAllEdges();
             selector.RedrawBordersSelectedObjects();
         }
 
